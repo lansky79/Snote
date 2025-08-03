@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>仪表板 - IPD项目协作系统</title>
+    <link rel="stylesheet" href="css/common.css" />
+  </head>
+  <body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+      <div class="nav-container">
+        <div class="nav-brand">IPD项目协作系统</div>
+        <div class="nav-menu">
+          <a href="index.html">项目概览</a>
+          <a href="dashboard.html">仪表板</a>
+          <a href="team.html">团队协作</a>
+          <a href="stages.html">阶段管理</a>
+          <a href="dcp.html">DCP评审</a>
+          <a href="deliverables.html">交付物管理</a>
+          <a href="users.html">用户管理</a>
+          <a href="settings.html">系统设置</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+      <div class="container">
+        <!-- 页面标题 -->
+        <div style="margin-bottom: 30px">
+          <h1 style="color: #2c3e50; margin-bottom: 10px">数据仪表板</h1>
+          <p style="color: #666">项目进展和团队绩效的综合分析</p>
+        </div>
+
+        <!-- 核心指标 -->
+        <div class="grid grid-4" style="margin-bottom: 30px">
+          <div class="stat-card">
+            <div class="stat-number" id="total-projects">0</div>
+            <div class="stat-label">总项目数</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="active-projects"
+              style="color: #2ecc71"
+            >
+              0
+            </div>
+            <div class="stat-label">进行中项目</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="completed-projects"
+              style="color: #27ae60"
+            >
+              0
+            </div>
+            <div class="stat-label">已完成项目</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="avg-progress" style="color: #3498db">
+              0%
+            </div>
+            <div class="stat-label">平均进度</div>
+          </div>
+        </div>
+
+        <!-- 项目进度概览 -->
+        <div class="card" style="margin-bottom: 30px">
+          <div class="card-header">
+            <h2 class="card-title">项目进度概览</h2>
+          </div>
+          <div class="card-content">
+            <div id="projects-progress-container">
+              <!-- 项目进度将通过JavaScript动态生成 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 双栏布局 -->
+        <div class="grid grid-2" style="gap: 30px">
+          <!-- 阶段分布 -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">阶段分布</h2>
+            </div>
+            <div class="card-content">
+              <div id="stages-distribution">
+                <!-- 阶段分布将通过JavaScript动态生成 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 团队工作负载 -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">团队工作负载</h2>
+            </div>
+            <div class="card-content">
+              <div id="team-workload">
+                <!-- 团队工作负载将通过JavaScript动态生成 -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 项目预算分析 -->
+        <div class="card" style="margin-top: 30px">
+          <div class="card-header">
+            <h2 class="card-title">项目预算分析</h2>
+          </div>
+          <div class="card-content">
+            <div id="budget-analysis">
+              <!-- 预算分析将通过JavaScript动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 引入脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+      // 渲染核心指标
+      function renderCoreMetrics() {
+        var projects = IPD_DATA.projects;
+        var totalProjects = projects.length;
+        var activeProjects = projects.filter(function (p) {
+          return p.status === "in_progress";
+        }).length;
+        var completedProjects = projects.filter(function (p) {
+          return p.status === "completed";
+        }).length;
+        var avgProgress =
+          totalProjects > 0
+            ? Math.round(
+                projects.reduce(function (sum, p) {
+                  return sum + p.progress;
+                }, 0) / totalProjects
+              )
+            : 0;
+
+        document.getElementById("total-projects").textContent = totalProjects;
+        document.getElementById("active-projects").textContent = activeProjects;
+        document.getElementById("completed-projects").textContent =
+          completedProjects;
+        document.getElementById("avg-progress").textContent = avgProgress + "%";
+      }
+
+      // 渲染项目进度概览
+      function renderProjectsProgress() {
+        var container = document.getElementById("projects-progress-container");
+        var projects = IPD_DATA.projects;
+        var html = "";
+
+        for (var i = 0; i < projects.length; i++) {
+          var project = projects[i];
+          html +=
+            '<div style="display: flex; align-items: center; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+          html += '<div style="flex: 1; margin-right: 20px;">';
+          html +=
+            '<div style="font-weight: bold; margin-bottom: 5px; color: #2c3e50;">' +
+            project.name +
+            "</div>";
+          html +=
+            '<div style="color: #666; font-size: 0.9em;">' +
+            getStageText(project.currentStage) +
+            " - " +
+            getStatusText(project.status) +
+            "</div>";
+          html += "</div>";
+          html += '<div style="width: 200px; margin-right: 15px;">';
+          html += createProgressBar(project.progress);
+          html += "</div>";
+          html +=
+            '<div style="min-width: 60px; text-align: center; font-weight: bold; color: #3498db;">' +
+            project.progress +
+            "%</div>";
+          html += "</div>";
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 渲染阶段分布
+      function renderStagesDistribution() {
+        var container = document.getElementById("stages-distribution");
+        var projects = IPD_DATA.projects;
+        var stages = [
+          "concept",
+          "plan",
+          "develop",
+          "verify",
+          "release",
+          "lifecycle",
+        ];
+        var html = "";
+
+        for (var i = 0; i < stages.length; i++) {
+          var stage = stages[i];
+          var count = projects.filter(function (p) {
+            return p.currentStage === stage;
+          }).length;
+          var percentage =
+            projects.length > 0
+              ? Math.round((count / projects.length) * 100)
+              : 0;
+
+          html +=
+            '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">';
+          html +=
+            '<span style="color: #666; min-width: 100px;">' +
+            getStageText(stage) +
+            "</span>";
+          html +=
+            '<div style="display: flex; align-items: center; gap: 10px; flex: 1;">';
+          html +=
+            '<div style="flex: 1; background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
+          html +=
+            '<div style="background: #3498db; height: 100%; width: ' +
+            percentage +
+            '%;"></div>';
+          html += "</div>";
+          html +=
+            '<span style="font-weight: bold; color: #2c3e50; min-width: 30px;">' +
+            count +
+            "</span>";
+          html += "</div>";
+          html += "</div>";
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 渲染团队工作负载
+      function renderTeamWorkload() {
+        var container = document.getElementById("team-workload");
+        var users = IPD_DATA.users;
+        var html = "";
+
+        for (var i = 0; i < users.length; i++) {
+          var user = users[i];
+          var workloadColor = user.workload > 80 ? "#e74c3c" : "#27ae60";
+
+          html +=
+            '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">';
+          html +=
+            '<div style="display: flex; align-items: center; gap: 10px;">';
+          html += createAvatar(user.name);
+          html +=
+            '<span style="color: #666; font-size: 0.9em;">' +
+            user.name +
+            "</span>";
+          html += "</div>";
+          html +=
+            '<div style="display: flex; align-items: center; gap: 10px; flex: 1; margin-left: 15px;">';
+          html +=
+            '<div style="flex: 1; background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
+          html +=
+            '<div style="background: ' +
+            workloadColor +
+            "; height: 100%; width: " +
+            user.workload +
+            '%;"></div>';
+          html += "</div>";
+          html +=
+            '<span style="font-weight: bold; color: ' +
+            workloadColor +
+            '; min-width: 40px;">' +
+            user.workload +
+            "%</span>";
+          html += "</div>";
+          html += "</div>";
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 渲染预算分析
+      function renderBudgetAnalysis() {
+        var container = document.getElementById("budget-analysis");
+        var projects = IPD_DATA.projects;
+        var html = "";
+
+        var totalBudget = projects.reduce(function (sum, p) {
+          return sum + (p.budget || 0);
+        }, 0);
+        var completedBudget = projects
+          .filter(function (p) {
+            return p.status === "completed";
+          })
+          .reduce(function (sum, p) {
+            return sum + (p.budget || 0);
+          }, 0);
+        var inProgressBudget = projects
+          .filter(function (p) {
+            return p.status === "in_progress";
+          })
+          .reduce(function (sum, p) {
+            return sum + (p.budget || 0);
+          }, 0);
+
+        html += '<div class="grid grid-3" style="margin-bottom: 20px;">';
+        html +=
+          '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 6px;">';
+        html +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #3498db; margin-bottom: 5px;">¥' +
+          (totalBudget / 10000).toFixed(1) +
+          "万</div>";
+        html += '<div style="color: #666; font-size: 0.9em;">总预算</div>';
+        html += "</div>";
+        html +=
+          '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 6px;">';
+        html +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 5px;">¥' +
+          (completedBudget / 10000).toFixed(1) +
+          "万</div>";
+        html += '<div style="color: #666; font-size: 0.9em;">已完成项目</div>';
+        html += "</div>";
+        html +=
+          '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 6px;">';
+        html +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #f39c12; margin-bottom: 5px;">¥' +
+          (inProgressBudget / 10000).toFixed(1) +
+          "万</div>";
+        html += '<div style="color: #666; font-size: 0.9em;">进行中项目</div>';
+        html += "</div>";
+        html += "</div>";
+
+        html +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px;">项目预算分布</h4>';
+        for (var i = 0; i < projects.length; i++) {
+          var project = projects[i];
+          var budgetPercentage =
+            totalBudget > 0
+              ? Math.round((project.budget / totalBudget) * 100)
+              : 0;
+
+          html +=
+            '<div style="display: flex; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px;">';
+          html += '<div style="flex: 1; margin-right: 15px;">';
+          html +=
+            '<div style="font-weight: bold; color: #2c3e50; margin-bottom: 2px;">' +
+            project.name +
+            "</div>";
+          html +=
+            '<div style="color: #666; font-size: 0.8em;">' +
+            getStatusText(project.status) +
+            "</div>";
+          html += "</div>";
+          html += '<div style="width: 150px; margin-right: 15px;">';
+          html +=
+            '<div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
+          html +=
+            '<div style="background: #3498db; height: 100%; width: ' +
+            budgetPercentage +
+            '%;"></div>';
+          html += "</div>";
+          html += "</div>";
+          html +=
+            '<div style="min-width: 80px; text-align: right; font-weight: bold; color: #2c3e50;">¥' +
+            (project.budget / 10000).toFixed(1) +
+            "万</div>";
+          html += "</div>";
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 页面初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        loadData(function () {
+          safeRender(renderCoreMetrics, "total-projects");
+          safeRender(renderProjectsProgress, "projects-progress-container");
+          safeRender(renderStagesDistribution, "stages-distribution");
+          safeRender(renderTeamWorkload, "team-workload");
+          safeRender(renderBudgetAnalysis, "budget-analysis");
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "ipd-project-system",
+  "version": "1.0.0",
+  "description": "IPD项目协作系统 - 基于华为IPD流程的项目管理原型系统",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "dev:watch": "node --watch backend/server.js",
+    "test": "node test-system.js",
+    "lint": "echo \"暂无代码检查\" && exit 0",
+    "clean": "echo \"清理临时文件...\" && echo \"清理完成\"",
+    "setup": "npm install && echo \"项目设置完成，运行 npm start 启动服务器\"",
+    "info": "echo \"IPD项目协作系统 v1.0.0\" && echo \"服务器地址: http://localhost:3004\" && echo \"前端页面: http://localhost:3004/index.html\""
+  },
+  "keywords": [
+    "IPD",
+    "项目管理",
+    "华为IPD",
+    "协作系统",
+    "原型系统"
+  ],
+  "author": "IPD Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

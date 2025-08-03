@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>交付物管理 - IPD项目协作系统</title>
+    <link rel="stylesheet" href="css/common.css" />
+  </head>
+  <body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+      <div class="nav-container">
+        <div class="nav-brand">IPD项目协作系统</div>
+        <div class="nav-menu">
+          <a href="index.html">项目概览</a>
+          <a href="dashboard.html">仪表板</a>
+          <a href="team.html">团队协作</a>
+          <a href="stages.html">阶段管理</a>
+          <a href="dcp.html">DCP评审</a>
+          <a href="deliverables.html">交付物管理</a>
+          <a href="users.html">用户管理</a>
+          <a href="settings.html">系统设置</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+      <div class="container">
+        <!-- 页面标题 -->
+        <div style="margin-bottom: 30px">
+          <h1 style="color: #2c3e50; margin-bottom: 10px">交付物管理</h1>
+          <p style="color: #666">项目交付物的上传、审核和版本管理</p>
+        </div>
+
+        <!-- 交付物统计 -->
+        <div class="grid grid-4" style="margin-bottom: 30px">
+          <div class="stat-card">
+            <div class="stat-number" id="total-deliverables">0</div>
+            <div class="stat-label">总交付物</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="approved-deliverables"
+              style="color: #27ae60"
+            >
+              0
+            </div>
+            <div class="stat-label">已批准</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="pending-deliverables"
+              style="color: #e74c3c"
+            >
+              0
+            </div>
+            <div class="stat-label">待审核</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="total-downloads"
+              style="color: #3498db"
+            >
+              0
+            </div>
+            <div class="stat-label">总下载量</div>
+          </div>
+        </div>
+
+        <!-- 交付物列表 -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">交付物列表</h2>
+            <button
+              class="btn btn-primary"
+              onclick="showAlert('上传交付物功能开发中')"
+            >
+              上传交付物
+            </button>
+          </div>
+          <div class="card-content">
+            <div id="deliverables-container" class="grid grid-3">
+              <!-- 交付物卡片将通过JavaScript动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 引入脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+      // 渲染交付物统计
+      function renderDeliverablesStats() {
+        var deliverables = IPD_DATA.deliverables;
+        var totalDeliverables = deliverables.length;
+        var approvedDeliverables = deliverables.filter(function (d) {
+          return d.approvalStatus === "approved";
+        }).length;
+        var pendingDeliverables = deliverables.filter(function (d) {
+          return (
+            d.approvalStatus === "pending" ||
+            d.approvalStatus === "under_review"
+          );
+        }).length;
+        var totalDownloads = deliverables.reduce(function (sum, d) {
+          return sum + (d.downloadCount || 0);
+        }, 0);
+
+        document.getElementById("total-deliverables").textContent =
+          totalDeliverables;
+        document.getElementById("approved-deliverables").textContent =
+          approvedDeliverables;
+        document.getElementById("pending-deliverables").textContent =
+          pendingDeliverables;
+        document.getElementById("total-downloads").textContent = totalDownloads;
+      }
+
+      // 获取文件类型图标
+      function getFileTypeIcon(type) {
+        var icons = {
+          document: "📄",
+          prototype: "🎨",
+          code: "💻",
+          design: "🎯",
+          image: "🖼️",
+          video: "🎥",
+        };
+        return icons[type] || "📁";
+      }
+
+      // 获取审批状态样式
+      function getApprovalStatusClass(status) {
+        var statusMap = {
+          approved: "status-completed",
+          pending: "status-not-started",
+          under_review: "status-in-progress",
+          rejected: "status-blocked",
+        };
+        return statusMap[status] || "status-not-started";
+      }
+
+      // 获取审批状态文本
+      function getApprovalStatusText(status) {
+        var statusMap = {
+          approved: "已批准",
+          pending: "待审核",
+          under_review: "审核中",
+          rejected: "已拒绝",
+        };
+        return statusMap[status] || "未知状态";
+      }
+
+      // 渲染交付物列表
+      function renderDeliverables() {
+        var container = document.getElementById("deliverables-container");
+        var deliverables = IPD_DATA.deliverables;
+        var html = "";
+
+        if (deliverables.length === 0) {
+          html = '<div class="empty-state" style="grid-column: 1 / -1;">';
+          html += '<div class="empty-state-icon">📁</div>';
+          html += '<div class="empty-state-text">暂无交付物</div>';
+          html += "</div>";
+        } else {
+          for (var i = 0; i < deliverables.length; i++) {
+            var deliverable = deliverables[i];
+            var project = getProjectById(deliverable.projectId);
+            var uploader = getUserById(deliverable.uploadedBy);
+            var approver = deliverable.approvedBy
+              ? getUserById(deliverable.approvedBy)
+              : null;
+
+            html += '<div class="card" style="margin: 0;">';
+            html +=
+              '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">';
+            html +=
+              '<div style="display: flex; align-items: center; gap: 10px; flex: 1;">';
+            html +=
+              '<span style="font-size: 1.5em;">' +
+              getFileTypeIcon(deliverable.type) +
+              "</span>";
+            html += "<div>";
+            html +=
+              '<h4 style="margin: 0; color: #2c3e50; font-size: 1em;">' +
+              deliverable.name +
+              "</h4>";
+            html +=
+              '<div style="color: #666; font-size: 0.8em; margin-top: 2px;">v' +
+              deliverable.version +
+              "</div>";
+            html += "</div>";
+            html += "</div>";
+            html +=
+              '<span class="status-badge ' +
+              getApprovalStatusClass(deliverable.approvalStatus) +
+              '">' +
+              getApprovalStatusText(deliverable.approvalStatus) +
+              "</span>";
+            html += "</div>";
+
+            html +=
+              '<p style="color: #666; margin-bottom: 15px; font-size: 0.9em; line-height: 1.4;">' +
+              deliverable.description +
+              "</p>";
+
+            html +=
+              '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; font-size: 0.85em;">';
+            html += "<div>";
+            html += '<span style="color: #666;">项目:</span>';
+            html +=
+              '<div style="font-weight: bold; color: #2c3e50; margin-top: 2px; font-size: 0.9em;">' +
+              (project ? project.name : "未知项目") +
+              "</div>";
+            html += "</div>";
+            html += "<div>";
+            html += '<span style="color: #666;">阶段:</span>';
+            html +=
+              '<div style="font-weight: bold; color: #2c3e50; margin-top: 2px;">' +
+              getStageText(deliverable.stage) +
+              "</div>";
+            html += "</div>";
+            html += "<div>";
+            html += '<span style="color: #666;">上传者:</span>';
+            html +=
+              '<div style="font-weight: bold; color: #2c3e50; margin-top: 2px;">' +
+              (uploader ? uploader.name : "未知用户") +
+              "</div>";
+            html += "</div>";
+            html += "<div>";
+            html += '<span style="color: #666;">文件大小:</span>';
+            html +=
+              '<div style="font-weight: bold; color: #2c3e50; margin-top: 2px;">' +
+              deliverable.fileSize +
+              "</div>";
+            html += "</div>";
+            html += "</div>";
+
+            html +=
+              '<div style="color: #999; font-size: 0.8em; margin-bottom: 15px;">';
+            html += "上传时间: " + formatDate(deliverable.uploadedAt);
+            if (deliverable.downloadCount) {
+              html += " • 下载: " + deliverable.downloadCount + " 次";
+            }
+            html += "</div>";
+
+            html += '<div style="display: flex; gap: 8px;">';
+            html +=
+              '<button class="btn btn-outline" onclick="viewDeliverableDetail(\'' +
+              deliverable.id +
+              '\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">查看详情</button>';
+            html +=
+              '<button class="btn btn-primary" onclick="showAlert(\'下载功能开发中\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">下载</button>';
+            if (deliverable.approvalStatus === "pending") {
+              html +=
+                '<button class="btn btn-success" onclick="showAlert(\'审核功能开发中\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">审核</button>';
+            }
+            html += "</div>";
+            html += "</div>";
+          }
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 查看交付物详情
+      function viewDeliverableDetail(deliverableId) {
+        var deliverable = IPD_DATA.deliverables.find(function (d) {
+          return d.id === deliverableId;
+        });
+        if (!deliverable) {
+          showErrorMessage("交付物不存在");
+          return;
+        }
+
+        var project = getProjectById(deliverable.projectId);
+        var uploader = getUserById(deliverable.uploadedBy);
+        var approver = deliverable.approvedBy
+          ? getUserById(deliverable.approvedBy)
+          : null;
+        var content = "<div>";
+
+        content +=
+          '<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #e9ecef;">';
+        content +=
+          '<span style="font-size: 3em;">' +
+          getFileTypeIcon(deliverable.type) +
+          "</span>";
+        content += '<div style="flex: 1;">';
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 8px;">' +
+          deliverable.name +
+          "</h4>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">版本: v' +
+          deliverable.version +
+          "</div>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">文件名: ' +
+          deliverable.fileName +
+          "</div>";
+        content +=
+          '<div style="color: #666;">文件大小: ' +
+          deliverable.fileSize +
+          "</div>";
+        content += "</div>";
+        content += '<div style="text-align: right;">';
+        content +=
+          '<span class="status-badge ' +
+          getApprovalStatusClass(deliverable.approvalStatus) +
+          '">' +
+          getApprovalStatusText(deliverable.approvalStatus) +
+          "</span>";
+        content += "</div>";
+        content += "</div>";
+
+        content += '<div style="margin-bottom: 25px;">';
+        content +=
+          '<h5 style="color: #2c3e50; margin-bottom: 15px;">基本信息</h5>';
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<p style="color: #2c3e50; line-height: 1.6; margin-bottom: 15px;">' +
+          deliverable.description +
+          "</p>";
+        content +=
+          '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">';
+        content += "<div>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">关联项目</div>';
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          (project ? project.name : "未知项目") +
+          "</div>";
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">所属阶段</div>';
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          getStageText(deliverable.stage) +
+          "</div>";
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">文档类别</div>';
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          deliverable.category +
+          "</div>";
+        content += "</div>";
+        content += "<div>";
+        content += '<div style="color: #666; margin-bottom: 5px;">优先级</div>';
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          (deliverable.priority === "high"
+            ? "高"
+            : deliverable.priority === "medium"
+            ? "中"
+            : "低") +
+          "</div>";
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+
+        content += '<div style="margin-bottom: 25px;">';
+        content +=
+          '<h5 style="color: #2c3e50; margin-bottom: 15px;">上传信息</h5>';
+        content +=
+          '<div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        if (uploader) {
+          content += createAvatar(uploader.name);
+          content += '<div style="margin-left: 12px; flex: 1;">';
+          content +=
+            '<div style="font-weight: bold; color: #2c3e50;">' +
+            uploader.name +
+            "</div>";
+          content +=
+            '<div style="color: #666; font-size: 0.9em;">' +
+            uploader.department +
+            " - " +
+            uploader.role +
+            "</div>";
+          content += "</div>";
+        } else {
+          content += '<div style="color: #666;">上传者信息不可用</div>';
+        }
+        content +=
+          '<div style="text-align: right; color: #666; font-size: 0.9em;">';
+        content += formatDate(deliverable.uploadedAt);
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+
+        if (deliverable.approvalStatus === "approved" && approver) {
+          content += '<div style="margin-bottom: 25px;">';
+          content +=
+            '<h5 style="color: #2c3e50; margin-bottom: 15px;">审批信息</h5>';
+          content +=
+            '<div style="display: flex; align-items: center; padding: 15px; background: #d5f4e6; border-radius: 6px;">';
+          content += createAvatar(approver.name);
+          content += '<div style="margin-left: 12px; flex: 1;">';
+          content +=
+            '<div style="font-weight: bold; color: #2c3e50;">' +
+            approver.name +
+            "</div>";
+          content +=
+            '<div style="color: #666; font-size: 0.9em;">审批通过</div>';
+          content += "</div>";
+          content +=
+            '<div style="text-align: right; color: #666; font-size: 0.9em;">';
+          content += formatDate(deliverable.approvedAt);
+          content += "</div>";
+          content += "</div>";
+          content += "</div>";
+        }
+
+        content += "<div>";
+        content +=
+          '<h5 style="color: #2c3e50; margin-bottom: 15px;">使用统计</h5>';
+        content +=
+          '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">';
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #3498db; margin-bottom: 5px;">' +
+          (deliverable.downloadCount || 0) +
+          "</div>";
+        content += '<div style="color: #666; font-size: 0.9em;">下载次数</div>';
+        content += "</div>";
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #f39c12; margin-bottom: 5px;">' +
+          deliverable.version +
+          "</div>";
+        content += '<div style="color: #666; font-size: 0.9em;">当前版本</div>';
+        content += "</div>";
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #9b59b6; margin-bottom: 5px;">' +
+          deliverable.fileSize +
+          "</div>";
+        content += '<div style="color: #666; font-size: 0.9em;">文件大小</div>';
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+
+        content += "</div>";
+
+        showModal("交付物详情", content);
+      }
+
+      // 页面初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        loadData(function () {
+          safeRender(renderDeliverablesStats, "total-deliverables");
+          safeRender(renderDeliverables, "deliverables-container");
+        });
+      });
+    </script>
+  </body>
+</html>

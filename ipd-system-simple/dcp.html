@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DCP评审 - IPD项目协作系统</title>
+    <link rel="stylesheet" href="css/common.css" />
+  </head>
+  <body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+      <div class="nav-container">
+        <div class="nav-brand">IPD项目协作系统</div>
+        <div class="nav-menu">
+          <a href="index.html">项目概览</a>
+          <a href="dashboard.html">仪表板</a>
+          <a href="team.html">团队协作</a>
+          <a href="stages.html">阶段管理</a>
+          <a href="dcp.html">DCP评审</a>
+          <a href="deliverables.html">交付物管理</a>
+          <a href="users.html">用户管理</a>
+          <a href="settings.html">系统设置</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+      <div class="container">
+        <!-- 页面标题 -->
+        <div style="margin-bottom: 30px">
+          <h1 style="color: #2c3e50; margin-bottom: 10px">DCP评审管理</h1>
+          <p style="color: #666">
+            决策检查点(Decision Check Point)评审流程管理
+          </p>
+        </div>
+
+        <!-- DCP评审统计 -->
+        <div class="grid grid-4" style="margin-bottom: 30px">
+          <div class="stat-card">
+            <div class="stat-number" id="total-reviews">0</div>
+            <div class="stat-label">总评审数</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="completed-reviews"
+              style="color: #27ae60"
+            >
+              0
+            </div>
+            <div class="stat-label">已完成</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="pending-reviews"
+              style="color: #e74c3c"
+            >
+              0
+            </div>
+            <div class="stat-label">待处理</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="pass-rate" style="color: #3498db">
+              0%
+            </div>
+            <div class="stat-label">通过率</div>
+          </div>
+        </div>
+
+        <!-- DCP评审列表 -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">评审记录</h2>
+            <button
+              class="btn btn-primary"
+              onclick="showAlert('创建评审功能开发中')"
+            >
+              创建评审
+            </button>
+          </div>
+          <div class="card-content">
+            <div id="reviews-container">
+              <!-- 评审记录将通过JavaScript动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 引入脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+      // 渲染DCP评审统计
+      function renderDCPStats() {
+        var reviews = IPD_DATA.dcpReviews;
+        var totalReviews = reviews.length;
+        var completedReviews = reviews.filter(function (r) {
+          return r.status === "completed";
+        }).length;
+        var pendingReviews = reviews.filter(function (r) {
+          return r.status === "pending";
+        }).length;
+        var passedReviews = reviews.filter(function (r) {
+          return r.result === "pass";
+        }).length;
+        var passRate =
+          completedReviews > 0
+            ? Math.round((passedReviews / completedReviews) * 100)
+            : 0;
+
+        document.getElementById("total-reviews").textContent = totalReviews;
+        document.getElementById("completed-reviews").textContent =
+          completedReviews;
+        document.getElementById("pending-reviews").textContent = pendingReviews;
+        document.getElementById("pass-rate").textContent = passRate + "%";
+      }
+
+      // 获取评审状态样式
+      function getReviewStatusClass(status) {
+        var statusMap = {
+          completed: "status-completed",
+          pending: "status-not-started",
+          in_review: "status-in-progress",
+        };
+        return statusMap[status] || "status-not-started";
+      }
+
+      // 获取评审状态文本
+      function getReviewStatusText(status) {
+        var statusMap = {
+          completed: "已完成",
+          pending: "待处理",
+          in_review: "评审中",
+        };
+        return statusMap[status] || "未知状态";
+      }
+
+      // 获取评审结果样式
+      function getReviewResultClass(result) {
+        var resultMap = {
+          pass: "status-completed",
+          fail: "status-blocked",
+          conditional_pass: "status-planning",
+        };
+        return resultMap[result] || "";
+      }
+
+      // 获取评审结果文本
+      function getReviewResultText(result) {
+        var resultMap = {
+          pass: "通过",
+          fail: "不通过",
+          conditional_pass: "有条件通过",
+        };
+        return resultMap[result] || "";
+      }
+
+      // 渲染DCP评审列表
+      function renderDCPReviews() {
+        var container = document.getElementById("reviews-container");
+        var reviews = IPD_DATA.dcpReviews;
+        var html = "";
+
+        if (reviews.length === 0) {
+          html = '<div class="empty-state">';
+          html += '<div class="empty-state-icon">📋</div>';
+          html += '<div class="empty-state-text">暂无DCP评审记录</div>';
+          html += "</div>";
+        } else {
+          for (var i = 0; i < reviews.length; i++) {
+            var review = reviews[i];
+            var project = getProjectById(review.projectId);
+            var isOverdue =
+              review.status !== "completed" &&
+              new Date(review.deadline) < new Date();
+
+            html +=
+              '<div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid ' +
+              (isOverdue ? "#e74c3c" : "#3498db") +
+              ';">';
+            html +=
+              '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">';
+            html += '<div style="flex: 1;">';
+            html +=
+              '<h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 1.1em;">' +
+              review.title +
+              "</h4>";
+            html +=
+              '<div style="color: #666; font-size: 0.9em; margin-bottom: 5px;">项目: ' +
+              (project ? project.name : "未知项目") +
+              "</div>";
+            html +=
+              '<div style="color: #666; font-size: 0.9em;">阶段: ' +
+              getStageText(review.stage) +
+              "</div>";
+            html += "</div>";
+            html += '<div style="text-align: right;">';
+            html += '<div style="margin-bottom: 8px;">';
+            html +=
+              '<span class="status-badge ' +
+              getReviewStatusClass(review.status) +
+              '">' +
+              getReviewStatusText(review.status) +
+              "</span>";
+            html += "</div>";
+            if (review.result) {
+              html += "<div>";
+              html +=
+                '<span class="status-badge ' +
+                getReviewResultClass(review.result) +
+                '">' +
+                getReviewResultText(review.result) +
+                "</span>";
+              html += "</div>";
+            }
+            html += "</div>";
+            html += "</div>";
+
+            html +=
+              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px; font-size: 0.9em;">';
+            html += "<div>";
+            html += '<span style="color: #666;">评审员:</span>';
+            html +=
+              '<span style="font-weight: bold; color: #2c3e50;">' +
+              review.reviewers.length +
+              " 人</span>";
+            html += "</div>";
+            html += "<div>";
+            html += '<span style="color: #666;">截止时间:</span>';
+            html +=
+              '<span style="font-weight: bold; color: ' +
+              (isOverdue ? "#e74c3c" : "#2c3e50") +
+              ';">' +
+              formatDate(review.deadline) +
+              "</span>";
+            html += "</div>";
+            html += "<div>";
+            html += '<span style="color: #666;">创建时间:</span>';
+            html +=
+              '<span style="font-weight: bold; color: #2c3e50;">' +
+              formatDate(review.createdAt) +
+              "</span>";
+            html += "</div>";
+            if (review.completedAt) {
+              html += "<div>";
+              html += '<span style="color: #666;">完成时间:</span>';
+              html +=
+                '<span style="font-weight: bold; color: #2c3e50;">' +
+                formatDate(review.completedAt) +
+                "</span>";
+              html += "</div>";
+            }
+            html += "</div>";
+
+            if (isOverdue) {
+              html +=
+                '<div style="background: #ffeaa7; color: #d63031; padding: 8px 12px; border-radius: 4px; margin-bottom: 15px; font-size: 0.9em;">';
+              html += "⚠️ 此评审已超期，请尽快处理";
+              html += "</div>";
+            }
+
+            html += '<div style="display: flex; gap: 10px;">';
+            html +=
+              '<button class="btn btn-outline" onclick="viewReviewDetail(\'' +
+              review.id +
+              '\')" style="font-size: 0.9em;">查看详情</button>';
+            if (review.status === "pending") {
+              html +=
+                '<button class="btn btn-primary" onclick="showAlert(\'开始评审功能开发中\')" style="font-size: 0.9em;">开始评审</button>';
+            } else if (review.status === "in_review") {
+              html +=
+                '<button class="btn btn-success" onclick="showAlert(\'提交评审功能开发中\')" style="font-size: 0.9em;">提交评审</button>';
+            }
+            html += "</div>";
+            html += "</div>";
+          }
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 查看评审详情
+      function viewReviewDetail(reviewId) {
+        var review = IPD_DATA.dcpReviews.find(function (r) {
+          return r.id === reviewId;
+        });
+        if (!review) {
+          showErrorMessage("评审记录不存在");
+          return;
+        }
+
+        var project = getProjectById(review.projectId);
+        var content = "<div>";
+
+        content +=
+          '<div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #e9ecef;">';
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px;">' +
+          review.title +
+          "</h4>";
+        content +=
+          '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">';
+        content += "<div>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">关联项目</div>';
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          (project ? project.name : "未知项目") +
+          "</div>";
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">评审阶段</div>';
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          getStageText(review.stage) +
+          "</div>";
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">评审状态</div>';
+        content += "<div>" + createStatusBadge(review.status) + "</div>";
+        content += "</div>";
+        if (review.result) {
+          content += "<div>";
+          content +=
+            '<div style="color: #666; margin-bottom: 5px;">评审结果</div>';
+          content +=
+            '<div><span class="status-badge ' +
+            getReviewResultClass(review.result) +
+            '">' +
+            getReviewResultText(review.result) +
+            "</span></div>";
+          content += "</div>";
+        }
+        content += "<div>";
+        content += '<div style="color: #666; margin-bottom: 5px;">优先级</div>';
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          (review.priority === "high"
+            ? "高"
+            : review.priority === "medium"
+            ? "中"
+            : "低") +
+          "</div>";
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">风险等级</div>';
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          (review.riskLevel === "high"
+            ? "高风险"
+            : review.riskLevel === "medium"
+            ? "中风险"
+            : "低风险") +
+          "</div>";
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+
+        content += '<div style="margin-bottom: 25px;">';
+        content +=
+          '<h5 style="color: #2c3e50; margin-bottom: 15px;">评审员列表</h5>';
+        if (review.reviewers.length > 0) {
+          for (var i = 0; i < review.reviewers.length; i++) {
+            var reviewer = getUserById(review.reviewers[i]);
+            if (reviewer) {
+              content +=
+                '<div style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 4px; margin-bottom: 8px;">';
+              content += createAvatar(reviewer.name);
+              content += '<div style="margin-left: 12px; flex: 1;">';
+              content +=
+                '<div style="font-weight: bold; color: #2c3e50;">' +
+                reviewer.name +
+                "</div>";
+              content +=
+                '<div style="color: #666; font-size: 0.8em;">' +
+                reviewer.department +
+                " - " +
+                reviewer.role +
+                "</div>";
+              content += "</div>";
+              content += '<div style="text-align: right;">';
+              if (review.status === "completed") {
+                content +=
+                  '<span style="color: #27ae60; font-weight: bold; font-size: 0.8em;">已完成</span>';
+              } else {
+                content +=
+                  '<span style="color: #f39c12; font-weight: bold; font-size: 0.8em;">待评审</span>';
+              }
+              content += "</div>";
+              content += "</div>";
+            }
+          }
+        } else {
+          content +=
+            '<div style="color: #999; font-style: italic; text-align: center; padding: 20px;">暂无评审员</div>';
+        }
+        content += "</div>";
+
+        content += "<div>";
+        content +=
+          '<h5 style="color: #2c3e50; margin-bottom: 15px;">评审意见</h5>';
+        if (review.comments && review.comments.length > 0) {
+          for (var j = 0; j < review.comments.length; j++) {
+            var comment = review.comments[j];
+            var commenter = getUserById(comment.reviewerId);
+            content +=
+              '<div style="border: 1px solid #e9ecef; border-radius: 6px; padding: 15px; margin-bottom: 10px;">';
+            content +=
+              '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+            content +=
+              '<div style="font-weight: bold; color: #2c3e50;">' +
+              (commenter ? commenter.name : "未知评审员") +
+              "</div>";
+            content +=
+              '<div style="display: flex; align-items: center; gap: 10px;">';
+            if (comment.decision === "approve") {
+              content +=
+                '<span style="background: #d5f4e6; color: #27ae60; padding: 2px 8px; border-radius: 10px; font-size: 0.8em;">同意</span>';
+            } else if (comment.decision === "reject") {
+              content +=
+                '<span style="background: #ffeaa7; color: #e74c3c; padding: 2px 8px; border-radius: 10px; font-size: 0.8em;">拒绝</span>';
+            }
+            content +=
+              '<span style="color: #666; font-size: 0.8em;">' +
+              formatDate(comment.createdAt) +
+              "</span>";
+            content += "</div>";
+            content += "</div>";
+            content +=
+              '<div style="color: #2c3e50; line-height: 1.5;">' +
+              comment.comment +
+              "</div>";
+            content += "</div>";
+          }
+        } else {
+          content +=
+            '<div style="color: #999; font-style: italic; text-align: center; padding: 20px;">暂无评审意见</div>';
+        }
+        content += "</div>";
+
+        content += "</div>";
+
+        showModal("DCP评审详情", content);
+      }
+
+      // 页面初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        loadData(function () {
+          safeRender(renderDCPStats, "total-reviews");
+          safeRender(renderDCPReviews, "reviews-container");
+        });
+      });
+    </script>
+  </body>
+</html>

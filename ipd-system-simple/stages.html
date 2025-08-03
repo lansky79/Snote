@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>阶段管理 - IPD项目协作系统</title>
+    <link rel="stylesheet" href="css/common.css" />
+  </head>
+  <body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+      <div class="nav-container">
+        <div class="nav-brand">IPD项目协作系统</div>
+        <div class="nav-menu">
+          <a href="index.html">项目概览</a>
+          <a href="dashboard.html">仪表板</a>
+          <a href="team.html">团队协作</a>
+          <a href="stages.html">阶段管理</a>
+          <a href="dcp.html">DCP评审</a>
+          <a href="deliverables.html">交付物管理</a>
+          <a href="users.html">用户管理</a>
+          <a href="settings.html">系统设置</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+      <div class="container">
+        <!-- 页面标题 -->
+        <div style="margin-bottom: 30px">
+          <h1 style="color: #2c3e50; margin-bottom: 10px">IPD六阶段管理</h1>
+          <p style="color: #666">集成产品开发(IPD)六阶段流程管理和监控</p>
+        </div>
+
+        <!-- IPD六阶段流程图 -->
+        <div class="card" style="margin-bottom: 30px">
+          <div class="card-header">
+            <h2 class="card-title">IPD六阶段流程</h2>
+          </div>
+          <div class="card-content">
+            <div
+              id="stages-flow"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                overflow-x: auto;
+                padding: 20px 0;
+              "
+            >
+              <!-- 六阶段流程图将通过JavaScript动态生成 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 各阶段项目分布 -->
+        <div id="stages-distribution">
+          <!-- 阶段分布将通过JavaScript动态生成 -->
+        </div>
+      </div>
+    </main>
+
+    <!-- 引入脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+      // 渲染IPD六阶段流程图
+      function renderStagesFlow() {
+        var container = document.getElementById("stages-flow");
+        var stages = [
+          "concept",
+          "plan",
+          "develop",
+          "verify",
+          "release",
+          "lifecycle",
+        ];
+        var stageNames = {
+          concept: "概念",
+          plan: "计划",
+          develop: "开发",
+          verify: "验证",
+          release: "发布",
+          lifecycle: "生命周期",
+        };
+        var projects = IPD_DATA.projects;
+        var html = "";
+
+        for (var i = 0; i < stages.length; i++) {
+          var stage = stages[i];
+          var projectsInStage = projects.filter(function (p) {
+            return p.currentStage === stage;
+          }).length;
+
+          html +=
+            '<div style="display: flex; flex-direction: column; align-items: center; min-width: 120px; position: relative;">';
+          html +=
+            '<div style="width: 80px; height: 80px; border-radius: 50%; background: #3498db; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2em; margin-bottom: 10px; position: relative; cursor: pointer;" onclick="showStageDetail(\'' +
+            stage +
+            "')\">";
+          html += i + 1;
+          if (projectsInStage > 0) {
+            html +=
+              '<div style="position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8em;">' +
+              projectsInStage +
+              "</div>";
+          }
+          html += "</div>";
+          html += '<div style="text-align: center;">';
+          html +=
+            '<div style="font-weight: bold; color: #2c3e50; margin-bottom: 5px;">' +
+            stageNames[stage] +
+            "阶段</div>";
+          html +=
+            '<div style="color: #666; font-size: 0.8em;">' +
+            projectsInStage +
+            " 个项目</div>";
+          html += "</div>";
+          html += "</div>";
+
+          // 添加连接线（除了最后一个）
+          if (i < stages.length - 1) {
+            html +=
+              '<div style="flex: 1; height: 2px; background: #bdc3c7; margin: 0 20px; align-self: center; position: relative;">';
+            html +=
+              '<div style="position: absolute; right: -8px; top: -6px; color: #bdc3c7; font-size: 1.2em;">→</div>';
+            html += "</div>";
+          }
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 渲染各阶段项目分布
+      function renderStagesDistribution() {
+        var container = document.getElementById("stages-distribution");
+        var stages = [
+          "concept",
+          "plan",
+          "develop",
+          "verify",
+          "release",
+          "lifecycle",
+        ];
+        var stageNames = {
+          concept: "概念阶段",
+          plan: "计划阶段",
+          develop: "开发阶段",
+          verify: "验证阶段",
+          release: "发布阶段",
+          lifecycle: "生命周期阶段",
+        };
+        var projects = IPD_DATA.projects;
+        var html = '<div class="grid grid-3">';
+
+        for (var i = 0; i < stages.length; i++) {
+          var stage = stages[i];
+          var stageProjects = projects.filter(function (p) {
+            return p.currentStage === stage;
+          });
+
+          html += '<div class="card">';
+          html +=
+            '<div style="background: #3498db; color: white; padding: 15px; margin: -20px -20px 15px -20px; border-radius: 8px 8px 0 0;">';
+          html +=
+            '<h4 style="margin: 0; display: flex; justify-content: space-between; align-items: center;">';
+          html += stageNames[stage];
+          html +=
+            '<span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">' +
+            stageProjects.length +
+            "</span>";
+          html += "</h4>";
+          html += "</div>";
+          html += "<div>";
+
+          if (stageProjects.length > 0) {
+            for (var j = 0; j < stageProjects.length; j++) {
+              var project = stageProjects[j];
+              html +=
+                '<div style="padding: 12px; margin-bottom: 10px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db; cursor: pointer;" onclick="viewProjectInStage(\'' +
+                project.id +
+                "')\">";
+              html +=
+                '<div style="font-weight: bold; color: #2c3e50; margin-bottom: 5px; font-size: 0.95em;">' +
+                project.name +
+                "</div>";
+              html +=
+                '<div style="color: #666; font-size: 0.8em; margin-bottom: 8px;">' +
+                getStatusText(project.status) +
+                "</div>";
+              html +=
+                '<div style="display: flex; align-items: center; gap: 10px;">';
+              html +=
+                '<div style="flex: 1; background: #ecf0f1; height: 6px; border-radius: 3px; overflow: hidden;">';
+              html +=
+                '<div style="background: #3498db; height: 100%; width: ' +
+                project.progress +
+                '%;"></div>';
+              html += "</div>";
+              html +=
+                '<span style="font-size: 0.8em; font-weight: bold; color: #3498db;">' +
+                project.progress +
+                "%</span>";
+              html += "</div>";
+              html += "</div>";
+            }
+          } else {
+            html +=
+              '<div style="text-align: center; color: #999; padding: 20px; font-style: italic;">暂无项目</div>';
+          }
+
+          html += "</div>";
+          html += "</div>";
+        }
+
+        html += "</div>";
+        container.innerHTML = html;
+      }
+
+      // 显示阶段详情
+      function showStageDetail(stage) {
+        var stageNames = {
+          concept: "概念阶段",
+          plan: "计划阶段",
+          develop: "开发阶段",
+          verify: "验证阶段",
+          release: "发布阶段",
+          lifecycle: "生命周期阶段",
+        };
+
+        var stageDescriptions = {
+          concept: "确定产品概念和市场需求，进行初步的可行性分析",
+          plan: "制定详细的项目计划，包括技术方案、资源配置和时间安排",
+          develop: "进行产品开发和实现，包括编码、测试和集成",
+          verify: "对产品进行全面验证，确保满足需求和质量标准",
+          release: "产品发布和部署，包括用户培训和上线准备",
+          lifecycle: "产品生命周期管理，包括维护、升级和支持",
+        };
+
+        var projects = IPD_DATA.projects;
+        var stageProjects = projects.filter(function (p) {
+          return p.currentStage === stage;
+        });
+
+        var content = "<div>";
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px;">' +
+          stageNames[stage] +
+          "</h4>";
+        content +=
+          '<p style="color: #666; margin-bottom: 20px; line-height: 1.6;">' +
+          stageDescriptions[stage] +
+          "</p>";
+
+        content +=
+          '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px;">';
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #3498db; margin-bottom: 5px;">' +
+          stageProjects.length +
+          "</div>";
+        content += '<div style="color: #666; font-size: 0.9em;">项目数量</div>';
+        content += "</div>";
+
+        var avgProgress =
+          stageProjects.length > 0
+            ? Math.round(
+                stageProjects.reduce(function (sum, p) {
+                  return sum + p.progress;
+                }, 0) / stageProjects.length
+              )
+            : 0;
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 5px;">' +
+          avgProgress +
+          "%</div>";
+        content += '<div style="color: #666; font-size: 0.9em;">平均进度</div>';
+        content += "</div>";
+
+        var activeProjects = stageProjects.filter(function (p) {
+          return p.status === "in_progress";
+        }).length;
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #f39c12; margin-bottom: 5px;">' +
+          activeProjects +
+          "</div>";
+        content += '<div style="color: #666; font-size: 0.9em;">进行中</div>';
+        content += "</div>";
+        content += "</div>";
+
+        if (stageProjects.length > 0) {
+          content +=
+            '<h5 style="color: #2c3e50; margin-bottom: 15px;">该阶段项目列表</h5>';
+          for (var i = 0; i < stageProjects.length; i++) {
+            var project = stageProjects[i];
+            var projectManager = getUserById(project.projectManager);
+
+            content +=
+              '<div style="border: 1px solid #e9ecef; border-radius: 6px; padding: 15px; margin-bottom: 10px;">';
+            content +=
+              '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+            content +=
+              '<h6 style="margin: 0; color: #2c3e50;">' +
+              project.name +
+              "</h6>";
+            content += createStatusBadge(project.status);
+            content += "</div>";
+            content +=
+              '<p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">' +
+              project.description +
+              "</p>";
+            content +=
+              '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8em; color: #666;">';
+            content +=
+              "<span>项目经理: " +
+              (projectManager ? projectManager.name : "未分配") +
+              "</span>";
+            content += "<span>进度: " + project.progress + "%</span>";
+            content += "</div>";
+            content += "</div>";
+          }
+        } else {
+          content +=
+            '<div style="text-align: center; color: #999; padding: 30px; font-style: italic;">该阶段暂无项目</div>';
+        }
+
+        content += "</div>";
+
+        showModal(stageNames[stage] + " 详情", content);
+      }
+
+      // 查看阶段中的项目
+      function viewProjectInStage(projectId) {
+        var project = getProjectById(projectId);
+        if (!project) {
+          showErrorMessage("项目不存在");
+          return;
+        }
+
+        var projectManager = getUserById(project.projectManager);
+        var content = "<div>";
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px;">' +
+          project.name +
+          "</h4>";
+        content +=
+          '<p style="color: #666; margin-bottom: 20px; line-height: 1.6;">' +
+          project.description +
+          "</p>";
+
+        content +=
+          '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">';
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">项目状态</div>';
+        content +=
+          '<div style="font-weight: bold;">' +
+          getStatusText(project.status) +
+          "</div>";
+        content += "</div>";
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">当前阶段</div>';
+        content +=
+          '<div style="font-weight: bold;">' +
+          getStageText(project.currentStage) +
+          "</div>";
+        content += "</div>";
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">项目经理</div>';
+        content +=
+          '<div style="font-weight: bold;">' +
+          (projectManager ? projectManager.name : "未分配") +
+          "</div>";
+        content += "</div>";
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">项目预算</div>';
+        content +=
+          '<div style="font-weight: bold;">¥' +
+          (project.budget / 10000).toFixed(1) +
+          "万</div>";
+        content += "</div>";
+        content += "</div>";
+
+        content +=
+          '<h5 style="color: #2c3e50; margin-bottom: 15px;">六阶段进度</h5>';
+        var stages = [
+          "concept",
+          "plan",
+          "develop",
+          "verify",
+          "release",
+          "lifecycle",
+        ];
+        for (var i = 0; i < stages.length; i++) {
+          var stageKey = stages[i];
+          var stage = project.stages[stageKey];
+          var isCurrentStage = project.currentStage === stageKey;
+
+          content +=
+            '<div style="display: flex; align-items: center; margin-bottom: 10px; padding: 10px; background: ' +
+            (isCurrentStage ? "#e3f2fd" : "#f8f9fa") +
+            "; border-radius: 4px; border-left: 4px solid " +
+            (isCurrentStage ? "#2196f3" : "#e0e0e0") +
+            ';">';
+          content +=
+            '<div style="min-width: 120px; font-weight: 500; color: ' +
+            (isCurrentStage ? "#1976d2" : "#2c3e50") +
+            ';">' +
+            stage.name +
+            "</div>";
+          content += '<div style="flex: 1; margin: 0 15px;">';
+          content +=
+            '<div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
+          content +=
+            '<div style="background: ' +
+            getStatusColor(stage.status) +
+            "; height: 100%; width: " +
+            stage.progress +
+            '%; transition: width 0.3s ease;"></div>';
+          content += "</div>";
+          content += "</div>";
+          content +=
+            '<div style="min-width: 60px; text-align: right; font-weight: bold; color: #3498db;">' +
+            stage.progress +
+            "%</div>";
+          if (isCurrentStage) {
+            content +=
+              '<div style="margin-left: 10px; color: #2196f3; font-size: 0.8em;">当前</div>';
+          }
+          content += "</div>";
+        }
+
+        content += "</div>";
+
+        showModal("项目详情", content);
+      }
+
+      // 页面初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        loadData(function () {
+          safeRender(renderStagesFlow, "stages-flow");
+          safeRender(renderStagesDistribution, "stages-distribution");
+        });
+      });
+    </script>
+  </body>
+</html>

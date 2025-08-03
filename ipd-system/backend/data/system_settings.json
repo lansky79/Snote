@@ -1,0 +1,291 @@
+{
+  "settings": {
+    "system": {
+      "name": "IPD项目协作系统",
+      "version": "1.0.0",
+      "description": "基于华为IPD流程的项目协作管理系统",
+      "company": "华为技术有限公司",
+      "logo": "/images/logo.png",
+      "theme": "default",
+      "language": "zh-CN",
+      "timezone": "Asia/Shanghai",
+      "dateFormat": "YYYY-MM-DD",
+      "timeFormat": "HH:mm:ss",
+      "maxFileSize": "50MB",
+      "allowedFileTypes": [
+        ".pdf",
+        ".doc",
+        ".docx",
+        ".xls",
+        ".xlsx",
+        ".ppt",
+        ".pptx",
+        ".jpg",
+        ".png",
+        ".gif"
+      ],
+      "sessionTimeout": 3600,
+      "backupEnabled": true,
+      "backupInterval": "daily",
+      "maintenanceMode": false,
+      "debugMode": false
+    },
+    "email": {
+      "enabled": true,
+      "smtpServer": "smtp.company.com",
+      "smtpPort": 587,
+      "username": "system@company.com",
+      "password": "encrypted_password",
+      "fromAddress": "IPD系统 <noreply@company.com>",
+      "enableSSL": true,
+      "templates": {
+        "taskAssigned": {
+          "subject": "新任务分配通知",
+          "enabled": true
+        },
+        "dcpReview": {
+          "subject": "DCP评审通知",
+          "enabled": true
+        },
+        "projectUpdate": {
+          "subject": "项目状态更新",
+          "enabled": true
+        }
+      }
+    },
+    "security": {
+      "passwordMinLength": 8,
+      "passwordRequireUppercase": true,
+      "passwordRequireLowercase": true,
+      "passwordRequireNumbers": true,
+      "passwordRequireSpecialChars": true,
+      "maxLoginAttempts": 5,
+      "lockoutDuration": 1800,
+      "sessionSecure": true,
+      "enableTwoFactor": false,
+      "ipWhitelist": [],
+      "auditLogEnabled": true,
+      "dataEncryption": true
+    },
+    "workflow": {
+      "autoProgressStages": false,
+      "requireDCPApproval": true,
+      "allowParallelStages": false,
+      "defaultReviewers": ["user_009"],
+      "reviewDeadlineDays": 7,
+      "escalationEnabled": true,
+      "escalationDays": 3,
+      "notificationEnabled": true,
+      "stages": {
+        "concept": {
+          "name": "概念阶段",
+          "required": true,
+          "minDuration": 7,
+          "maxDuration": 30,
+          "requiredDeliverables": ["需求分析报告", "可行性评估"]
+        },
+        "plan": {
+          "name": "计划阶段",
+          "required": true,
+          "minDuration": 5,
+          "maxDuration": 20,
+          "requiredDeliverables": ["项目计划", "资源配置方案"]
+        },
+        "develop": {
+          "name": "开发阶段",
+          "required": true,
+          "minDuration": 30,
+          "maxDuration": 180,
+          "requiredDeliverables": ["设计文档", "开发代码", "测试报告"]
+        },
+        "verify": {
+          "name": "验证阶段",
+          "required": true,
+          "minDuration": 10,
+          "maxDuration": 30,
+          "requiredDeliverables": ["测试报告", "验证文档"]
+        },
+        "release": {
+          "name": "发布阶段",
+          "required": true,
+          "minDuration": 3,
+          "maxDuration": 15,
+          "requiredDeliverables": ["发布计划", "用户手册"]
+        },
+        "lifecycle": {
+          "name": "生命周期阶段",
+          "required": false,
+          "minDuration": 90,
+          "maxDuration": 365,
+          "requiredDeliverables": ["维护计划", "运营报告"]
+        }
+      }
+    },
+    "integration": {
+      "ldapEnabled": false,
+      "ldapServer": "",
+      "ldapPort": 389,
+      "ldapBaseDN": "",
+      "ssoEnabled": false,
+      "apiEnabled": true,
+      "apiRateLimit": 1000,
+      "webhookEnabled": true,
+      "externalSystems": [
+        {
+          "name": "企业邮箱",
+          "type": "email",
+          "enabled": true,
+          "config": {}
+        },
+        {
+          "name": "文档管理系统",
+          "type": "document",
+          "enabled": false,
+          "config": {}
+        }
+      ]
+    },
+    "performance": {
+      "cacheEnabled": true,
+      "cacheTimeout": 3600,
+      "compressionEnabled": true,
+      "maxConcurrentUsers": 100,
+      "databasePoolSize": 10,
+      "logLevel": "info",
+      "metricsEnabled": true,
+      "healthCheckInterval": 300
+    }
+  },
+  "roles": [
+    {
+      "id": "admin",
+      "name": "系统管理员",
+      "description": "拥有系统所有权限",
+      "permissions": [
+        "system.manage",
+        "user.manage",
+        "project.manage",
+        "dcp.manage",
+        "settings.manage",
+        "audit.view"
+      ]
+    },
+    {
+      "id": "project_manager",
+      "name": "项目经理",
+      "description": "负责项目管理和团队协调",
+      "permissions": [
+        "project.create",
+        "project.edit",
+        "project.view",
+        "task.assign",
+        "team.manage",
+        "dcp.initiate",
+        "deliverable.approve"
+      ]
+    },
+    {
+      "id": "team_member",
+      "name": "团队成员",
+      "description": "参与项目开发和任务执行",
+      "permissions": [
+        "project.view",
+        "task.update",
+        "deliverable.upload",
+        "comment.create",
+        "dashboard.view"
+      ]
+    },
+    {
+      "id": "reviewer",
+      "name": "评审员",
+      "description": "负责DCP评审和质量把关",
+      "permissions": [
+        "project.view",
+        "dcp.review",
+        "deliverable.review",
+        "comment.create",
+        "audit.view"
+      ]
+    }
+  ],
+  "departments": [
+    {
+      "id": "rd",
+      "name": "产品研发部",
+      "description": "负责产品研发和项目管理",
+      "manager": "user_001",
+      "members": ["user_001", "user_006", "user_008"]
+    },
+    {
+      "id": "market",
+      "name": "市场部",
+      "description": "负责市场调研和需求分析",
+      "manager": "user_002",
+      "members": ["user_002", "user_007"]
+    },
+    {
+      "id": "tech",
+      "name": "技术部",
+      "description": "负责技术架构和开发实施",
+      "manager": "user_003",
+      "members": ["user_003", "user_005"]
+    },
+    {
+      "id": "hardware",
+      "name": "硬件部",
+      "description": "负责硬件设计和开发",
+      "manager": "user_004",
+      "members": ["user_004"]
+    },
+    {
+      "id": "quality",
+      "name": "质量部",
+      "description": "负责质量管理和评审",
+      "manager": "user_009",
+      "members": ["user_009"]
+    },
+    {
+      "id": "it",
+      "name": "IT部",
+      "description": "负责系统管理和技术支持",
+      "manager": "user_010",
+      "members": ["user_010"]
+    },
+    {
+      "id": "design",
+      "name": "设计部",
+      "description": "负责产品设计和用户体验",
+      "manager": "user_011",
+      "members": ["user_011"]
+    },
+    {
+      "id": "test",
+      "name": "测试部",
+      "description": "负责产品质量测试和验证",
+      "manager": "user_012",
+      "members": ["user_012"]
+    },
+    {
+      "id": "operation",
+      "name": "运营部",
+      "description": "负责产品运营和用户增长",
+      "manager": "user_013",
+      "members": ["user_013"]
+    },
+    {
+      "id": "sales",
+      "name": "销售部",
+      "description": "负责产品销售和客户关系",
+      "manager": "user_014",
+      "members": ["user_014"]
+    },
+    {
+      "id": "finance",
+      "name": "财务部",
+      "description": "负责财务管理和成本控制",
+      "manager": "user_015",
+      "members": ["user_015"]
+    }
+  ]
+}

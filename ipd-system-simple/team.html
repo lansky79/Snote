@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>团队协作 - IPD项目协作系统</title>
+    <link rel="stylesheet" href="css/common.css" />
+  </head>
+  <body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+      <div class="nav-container">
+        <div class="nav-brand">IPD项目协作系统</div>
+        <div class="nav-menu">
+          <a href="index.html">项目概览</a>
+          <a href="dashboard.html">仪表板</a>
+          <a href="team.html">团队协作</a>
+          <a href="stages.html">阶段管理</a>
+          <a href="dcp.html">DCP评审</a>
+          <a href="deliverables.html">交付物管理</a>
+          <a href="users.html">用户管理</a>
+          <a href="settings.html">系统设置</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+      <div class="container">
+        <!-- 页面标题 -->
+        <div style="margin-bottom: 30px">
+          <h1 style="color: #2c3e50; margin-bottom: 10px">团队协作</h1>
+          <p style="color: #666">团队成员管理和工作负载分析</p>
+        </div>
+
+        <!-- 团队统计 -->
+        <div class="grid grid-4" style="margin-bottom: 30px">
+          <div class="stat-card">
+            <div class="stat-number" id="total-members">0</div>
+            <div class="stat-label">团队成员</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="normal-workload"
+              style="color: #27ae60"
+            >
+              0
+            </div>
+            <div class="stat-label">负载正常</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="high-workload" style="color: #e74c3c">
+              0
+            </div>
+            <div class="stat-label">负载过高</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="avg-workload" style="color: #3498db">
+              0%
+            </div>
+            <div class="stat-label">平均负载</div>
+          </div>
+        </div>
+
+        <!-- 部门分组 -->
+        <div id="departments-container">
+          <!-- 部门分组将通过JavaScript动态生成 -->
+        </div>
+      </div>
+    </main>
+
+    <!-- 引入脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+      // 渲染团队统计
+      function renderTeamStats() {
+        var users = IPD_DATA.users;
+        var totalMembers = users.length;
+        var normalWorkload = users.filter(function (u) {
+          return u.workload <= 80;
+        }).length;
+        var highWorkload = users.filter(function (u) {
+          return u.workload > 80;
+        }).length;
+        var avgWorkload =
+          totalMembers > 0
+            ? Math.round(
+                users.reduce(function (sum, u) {
+                  return sum + u.workload;
+                }, 0) / totalMembers
+              )
+            : 0;
+
+        document.getElementById("total-members").textContent = totalMembers;
+        document.getElementById("normal-workload").textContent = normalWorkload;
+        document.getElementById("high-workload").textContent = highWorkload;
+        document.getElementById("avg-workload").textContent = avgWorkload + "%";
+      }
+
+      // 按部门分组用户
+      function groupUsersByDepartment() {
+        var users = IPD_DATA.users;
+        var departments = {};
+
+        for (var i = 0; i < users.length; i++) {
+          var user = users[i];
+          if (!departments[user.department]) {
+            departments[user.department] = [];
+          }
+          departments[user.department].push(user);
+        }
+
+        return departments;
+      }
+
+      // 渲染部门分组
+      function renderDepartments() {
+        var container = document.getElementById("departments-container");
+        var departments = groupUsersByDepartment();
+        var html = "";
+
+        for (var deptName in departments) {
+          var deptUsers = departments[deptName];
+
+          html += '<div class="card" style="margin-bottom: 30px;">';
+          html += '<div class="card-header">';
+          html += '<h2 class="card-title">' + deptName + "</h2>";
+          html +=
+            '<span style="background: #ecf0f1; color: #666; padding: 4px 12px; border-radius: 12px; font-size: 0.8em;">' +
+            deptUsers.length +
+            " 人</span>";
+          html += "</div>";
+          html += '<div class="card-content">';
+          html += '<div class="grid grid-3">';
+
+          for (var i = 0; i < deptUsers.length; i++) {
+            var user = deptUsers[i];
+            var workloadColor = user.workload > 80 ? "#e74c3c" : "#27ae60";
+
+            html +=
+              '<div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">';
+            html +=
+              '<div style="display: flex; align-items: center; margin-bottom: 15px;">';
+            html +=
+              '<div style="width: 50px; height: 50px; border-radius: 50%; background: #3498db; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px; font-size: 1.2em;">';
+            html += user.name.charAt(0);
+            html += "</div>";
+            html += '<div style="flex: 1;">';
+            html +=
+              '<h4 style="margin: 0; color: #2c3e50; font-size: 1.1em;">' +
+              user.name +
+              "</h4>";
+            html +=
+              '<p style="margin: 5px 0 2px 0; color: #666; font-size: 0.9em;">' +
+              user.role +
+              "</p>";
+            html +=
+              '<p style="margin: 0; color: #999; font-size: 0.8em;">' +
+              user.level +
+              "</p>";
+            html += "</div>";
+            html += "</div>";
+
+            html += '<div style="margin-bottom: 15px;">';
+            html +=
+              '<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">';
+            html +=
+              '<span style="color: #666; font-size: 0.9em;">工作负载</span>';
+            html +=
+              '<span style="font-weight: bold; color: ' +
+              workloadColor +
+              ';">' +
+              user.workload +
+              "%</span>";
+            html += "</div>";
+            html +=
+              '<div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
+            html +=
+              '<div style="background: ' +
+              workloadColor +
+              "; height: 100%; width: " +
+              user.workload +
+              '%; transition: width 0.3s ease;"></div>';
+            html += "</div>";
+            html += "</div>";
+
+            html +=
+              '<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; text-align: center;">';
+            html +=
+              '<div style="background: white; padding: 8px; border-radius: 4px;">';
+            html +=
+              '<div style="font-weight: bold; color: #3498db; font-size: 1em;">' +
+              user.completedTasks +
+              "</div>";
+            html += '<div style="color: #666; font-size: 0.75em;">已完成</div>';
+            html += "</div>";
+            html +=
+              '<div style="background: white; padding: 8px; border-radius: 4px;">';
+            html +=
+              '<div style="font-weight: bold; color: #f39c12; font-size: 1em;">' +
+              user.ongoingTasks +
+              "</div>";
+            html += '<div style="color: #666; font-size: 0.75em;">进行中</div>';
+            html += "</div>";
+            html +=
+              '<div style="background: white; padding: 8px; border-radius: 4px;">';
+            html +=
+              '<div style="font-weight: bold; color: #9b59b6; font-size: 1em;">' +
+              user.projects.length +
+              "</div>";
+            html +=
+              '<div style="color: #666; font-size: 0.75em;">参与项目</div>';
+            html += "</div>";
+            html += "</div>";
+
+            html += '<div style="margin-bottom: 15px;">';
+            html +=
+              '<div style="color: #666; font-size: 0.85em; margin-bottom: 8px;">技能标签</div>';
+            html += '<div style="display: flex; flex-wrap: wrap; gap: 4px;">';
+            for (var j = 0; j < user.skills.length; j++) {
+              html +=
+                '<span style="background: #ecf0f1; color: #2c3e50; padding: 2px 6px; border-radius: 10px; font-size: 0.7em;">' +
+                user.skills[j] +
+                "</span>";
+            }
+            html += "</div>";
+            html += "</div>";
+
+            html += '<div style="display: flex; gap: 8px;">';
+            html +=
+              '<button class="btn btn-outline" onclick="viewUserDetail(\'' +
+              user.id +
+              '\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">查看详情</button>';
+            html +=
+              '<button class="btn btn-primary" onclick="showAlert(\'分配任务功能开发中\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">分配任务</button>';
+            html += "</div>";
+            html += "</div>";
+          }
+
+          html += "</div>";
+          html += "</div>";
+          html += "</div>";
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 查看用户详情
+      function viewUserDetail(userId) {
+        var user = getUserById(userId);
+        if (!user) {
+          showErrorMessage("用户不存在");
+          return;
+        }
+
+        var content = "<div>";
+        content +=
+          '<div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #e9ecef;">';
+        content +=
+          '<div style="width: 80px; height: 80px; border-radius: 50%; background: #3498db; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 2em;">';
+        content += user.name.charAt(0);
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<h3 style="color: #2c3e50; margin-bottom: 8px;">' +
+          user.name +
+          "</h3>";
+        content +=
+          '<p style="margin: 4px 0; color: #666;"><strong>邮箱:</strong> ' +
+          user.email +
+          "</p>";
+        content +=
+          '<p style="margin: 4px 0; color: #666;"><strong>电话:</strong> ' +
+          user.phone +
+          "</p>";
+        content +=
+          '<p style="margin: 4px 0; color: #666;"><strong>部门:</strong> ' +
+          user.department +
+          "</p>";
+        content +=
+          '<p style="margin: 4px 0; color: #666;"><strong>职位:</strong> ' +
+          user.role +
+          " (" +
+          user.level +
+          ")</p>";
+        content += "</div>";
+        content += "</div>";
+
+        content +=
+          '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px;">';
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: ' +
+          (user.workload > 80 ? "#e74c3c" : "#27ae60") +
+          '; margin-bottom: 5px;">' +
+          user.workload +
+          "%</div>";
+        content += '<div style="color: #666; font-size: 0.9em;">工作负载</div>';
+        content += "</div>";
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #3498db; margin-bottom: 5px;">' +
+          user.completedTasks +
+          "</div>";
+        content +=
+          '<div style="color: #666; font-size: 0.9em;">已完成任务</div>';
+        content += "</div>";
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #f39c12; margin-bottom: 5px;">' +
+          user.ongoingTasks +
+          "</div>";
+        content +=
+          '<div style="color: #666; font-size: 0.9em;">进行中任务</div>';
+        content += "</div>";
+        content +=
+          '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+        content +=
+          '<div style="font-size: 1.5em; font-weight: bold; color: #9b59b6; margin-bottom: 5px;">' +
+          user.projects.length +
+          "</div>";
+        content += '<div style="color: #666; font-size: 0.9em;">参与项目</div>';
+        content += "</div>";
+        content += "</div>";
+
+        content += '<div style="margin-bottom: 20px;">';
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px;">参与项目</h4>';
+        if (user.projects.length > 0) {
+          for (var i = 0; i < user.projects.length; i++) {
+            var project = getProjectById(user.projects[i]);
+            if (project) {
+              content +=
+                '<div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 4px; margin-bottom: 8px;">';
+              content += "<div>";
+              content +=
+                '<div style="font-weight: bold; color: #2c3e50;">' +
+                project.name +
+                "</div>";
+              content +=
+                '<div style="color: #666; font-size: 0.8em;">' +
+                getStageText(project.currentStage) +
+                "</div>";
+              content += "</div>";
+              content += '<div style="text-align: right;">';
+              content += createStatusBadge(project.status);
+              content += "</div>";
+              content += "</div>";
+            }
+          }
+        } else {
+          content +=
+            '<div style="color: #999; font-style: italic; text-align: center; padding: 20px;">暂未参与任何项目</div>';
+        }
+        content += "</div>";
+
+        content += "<div>";
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px;">技能专长</h4>';
+        content += '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
+        for (var j = 0; j < user.skills.length; j++) {
+          content +=
+            '<span style="background: #3498db; color: white; padding: 6px 12px; border-radius: 15px; font-size: 0.9em;">' +
+            user.skills[j] +
+            "</span>";
+        }
+        content += "</div>";
+        content += "</div>";
+
+        content += "</div>";
+
+        showModal("团队成员详情", content);
+      }
+
+      // 页面初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        loadData(function () {
+          safeRender(renderTeamStats, "total-members");
+          safeRender(renderDepartments, "departments-container");
+        });
+      });
+    </script>
+  </body>
+</html>

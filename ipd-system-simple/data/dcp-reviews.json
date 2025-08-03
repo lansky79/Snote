@@ -1,0 +1,82 @@
+[
+  {
+    "id": "dcp_001",
+    "projectId": "proj_001",
+    "stage": "concept",
+    "title": "档案数字化质检工具概念阶段DCP评审",
+    "status": "completed",
+    "result": "pass",
+    "reviewers": ["user_001", "user_002", "user_003"],
+    "deadline": "2024-01-30",
+    "createdAt": "2024-01-25",
+    "completedAt": "2024-01-29",
+    "priority": "high",
+    "riskLevel": "low",
+    "comments": [
+      {
+        "reviewerId": "user_001",
+        "comment": "项目概念清晰，市场需求明确，建议通过",
+        "decision": "approve",
+        "createdAt": "2024-01-28"
+      },
+      {
+        "reviewerId": "user_002",
+        "comment": "市场分析充分，用户需求调研详细，同意通过",
+        "decision": "approve",
+        "createdAt": "2024-01-29"
+      }
+    ]
+  },
+  {
+    "id": "dcp_002",
+    "projectId": "proj_001",
+    "stage": "plan",
+    "title": "档案数字化质检工具计划阶段DCP评审",
+    "status": "completed",
+    "result": "pass",
+    "reviewers": ["user_001", "user_003", "user_004"],
+    "deadline": "2024-02-15",
+    "createdAt": "2024-02-10",
+    "completedAt": "2024-02-14",
+    "priority": "high",
+    "riskLevel": "medium",
+    "comments": [
+      {
+        "reviewerId": "user_003",
+        "comment": "技术方案可行，架构设计合理",
+        "decision": "approve",
+        "createdAt": "2024-02-12"
+      }
+    ]
+  },
+  {
+    "id": "dcp_003",
+    "projectId": "proj_002",
+    "stage": "develop",
+    "title": "矿山综合管控系统开发阶段DCP评审",
+    "status": "in_review",
+    "result": null,
+    "reviewers": ["user_001", "user_003", "user_005"],
+    "deadline": "2024-03-01",
+    "createdAt": "2024-02-20",
+    "completedAt": null,
+    "priority": "high",
+    "riskLevel": "medium",
+    "comments": []
+  },
+  {
+    "id": "dcp_004",
+    "projectId": "proj_004",
+    "stage": "concept",
+    "title": "道路保洁精细化管理系统概念阶段DCP评审",
+    "status": "pending",
+    "result": null,
+    "reviewers": ["user_001", "user_002", "user_004"],
+    "deadline": "2024-03-10",
+    "createdAt": "2024-02-25",
+    "completedAt": null,
+    "priority": "medium",
+    "riskLevel": "low",
+    "comments": []
+  }
+]

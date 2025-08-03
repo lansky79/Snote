@@ -1,0 +1,278 @@
+{
+  "reviews": [
+    {
+      "id": "dcp_001",
+      "projectId": "proj_001",
+      "stage": "concept",
+      "title": "概念阶段DCP评审",
+      "status": "completed",
+      "result": "pass",
+      "reviewers": ["user_001", "user_002", "user_003", "user_009"],
+      "deadline": "2024-01-30T18:00:00Z",
+      "createdAt": "2024-01-25T08:00:00Z",
+      "completedAt": "2024-01-29T16:30:00Z",
+      "priority": "high",
+      "riskLevel": "low",
+      "comments": [
+        {
+          "id": "comment_001",
+          "reviewerId": "user_001",
+          "content": "市场需求分析充分，技术方案可行，建议通过",
+          "decision": "approve",
+          "createdAt": "2024-01-28T10:00:00Z"
+        },
+        {
+          "id": "comment_002",
+          "reviewerId": "user_002",
+          "content": "市场前景良好，竞争分析到位，同意进入下一阶段",
+          "decision": "approve",
+          "createdAt": "2024-01-28T14:30:00Z"
+        },
+        {
+          "id": "comment_003",
+          "reviewerId": "user_003",
+          "content": "技术架构设计合理，风险评估充分，支持通过",
+          "decision": "approve",
+          "createdAt": "2024-01-29T09:15:00Z"
+        },
+        {
+          "id": "comment_004",
+          "reviewerId": "user_009",
+          "content": "质量标准符合要求，流程规范，同意通过",
+          "decision": "approve",
+          "createdAt": "2024-01-29T15:20:00Z"
+        }
+      ]
+    },
+    {
+      "id": "dcp_002",
+      "projectId": "proj_001",
+      "stage": "plan",
+      "title": "计划阶段DCP评审",
+      "status": "completed",
+      "result": "pass",
+      "reviewers": ["user_001", "user_003", "user_004", "user_009"],
+      "deadline": "2024-02-15T18:00:00Z",
+      "createdAt": "2024-02-10T08:00:00Z",
+      "completedAt": "2024-02-14T17:00:00Z",
+      "priority": "high",
+      "riskLevel": "medium",
+      "comments": [
+        {
+          "id": "comment_005",
+          "reviewerId": "user_001",
+          "content": "项目计划详细，里程碑设置合理，资源配置充足",
+          "decision": "approve",
+          "createdAt": "2024-02-12T11:00:00Z"
+        },
+        {
+          "id": "comment_006",
+          "reviewerId": "user_003",
+          "content": "技术实施方案可行，开发计划安排合理",
+          "decision": "approve",
+          "createdAt": "2024-02-13T15:20:00Z"
+        },
+        {
+          "id": "comment_007",
+          "reviewerId": "user_004",
+          "content": "硬件开发计划周期合理，供应链风险已考虑",
+          "decision": "approve",
+          "createdAt": "2024-02-14T10:45:00Z"
+        },
+        {
+          "id": "comment_008",
+          "reviewerId": "user_009",
+          "content": "质量计划完善，测试策略清晰，同意通过",
+          "decision": "approve",
+          "createdAt": "2024-02-14T16:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "dcp_003",
+      "projectId": "proj_001",
+      "stage": "develop",
+      "title": "开发阶段DCP评审",
+      "status": "in_review",
+      "result": null,
+      "reviewers": ["user_001", "user_003", "user_004", "user_005", "user_009"],
+      "deadline": "2024-03-15T18:00:00Z",
+      "createdAt": "2024-03-01T08:00:00Z",
+      "completedAt": null,
+      "priority": "high",
+      "riskLevel": "medium",
+      "comments": [
+        {
+          "id": "comment_009",
+          "reviewerId": "user_003",
+          "content": "当前开发进度符合预期，代码质量良好",
+          "decision": "approve",
+          "createdAt": "2024-03-05T14:30:00Z"
+        },
+        {
+          "id": "comment_010",
+          "reviewerId": "user_005",
+          "content": "软件功能基本完成，需要进一步优化性能",
+          "decision": "conditional_approve",
+          "createdAt": "2024-03-08T11:15:00Z"
+        }
+      ]
+    },
+    {
+      "id": "dcp_004",
+      "projectId": "proj_002",
+      "stage": "concept",
+      "title": "企业管理软件概念阶段评审",
+      "status": "pending",
+      "result": null,
+      "reviewers": ["user_006", "user_007", "user_009"],
+      "deadline": "2024-03-20T18:00:00Z",
+      "createdAt": "2024-03-10T09:00:00Z",
+      "completedAt": null,
+      "priority": "medium",
+      "riskLevel": "low",
+      "comments": []
+    },
+    {
+      "id": "dcp_005",
+      "projectId": "proj_003",
+      "stage": "lifecycle",
+      "title": "智能家居系统生命周期评审",
+      "status": "completed",
+      "result": "pass",
+      "reviewers": ["user_008", "user_009"],
+      "deadline": "2024-02-15T18:00:00Z",
+      "createdAt": "2024-02-01T08:00:00Z",
+      "completedAt": "2024-02-10T15:45:00Z",
+      "priority": "low",
+      "riskLevel": "low",
+      "comments": [
+        {
+          "id": "comment_011",
+          "reviewerId": "user_008",
+          "content": "产品运行稳定，用户反馈良好，维护计划完善",
+          "decision": "approve",
+          "createdAt": "2024-02-08T10:30:00Z"
+        },
+        {
+          "id": "comment_012",
+          "reviewerId": "user_009",
+          "content": "质量指标达标，后续维护流程规范，同意继续",
+          "decision": "approve",
+          "createdAt": "2024-02-10T14:20:00Z"
+        }
+      ]
+    },
+    {
+      "id": "dcp_006",
+      "projectId": "proj_001",
+      "stage": "verify",
+      "title": "智能手机验证阶段DCP评审",
+      "status": "pending",
+      "result": null,
+      "reviewers": ["user_001", "user_003", "user_009", "user_012"],
+      "deadline": "2024-04-30T18:00:00Z",
+      "createdAt": "2024-03-15T08:00:00Z",
+      "completedAt": null,
+      "priority": "high",
+      "riskLevel": "medium",
+      "comments": []
+    },
+    {
+      "id": "dcp_007",
+      "projectId": "proj_002",
+      "stage": "plan",
+      "title": "企业管理软件计划阶段评审",
+      "status": "scheduled",
+      "result": null,
+      "reviewers": ["user_006", "user_007", "user_009"],
+      "deadline": "2024-04-15T18:00:00Z",
+      "createdAt": "2024-03-20T09:00:00Z",
+      "completedAt": null,
+      "priority": "medium",
+      "riskLevel": "low",
+      "comments": []
+    },
+    {
+      "id": "dcp_008",
+      "projectId": "proj_004",
+      "stage": "concept",
+      "title": "移动支付系统概念阶段评审",
+      "status": "completed",
+      "result": "conditional_pass",
+      "reviewers": ["user_001", "user_003", "user_009", "user_015"],
+      "deadline": "2024-03-10T18:00:00Z",
+      "createdAt": "2024-02-25T08:00:00Z",
+      "completedAt": "2024-03-08T17:30:00Z",
+      "priority": "high",
+      "riskLevel": "high",
+      "comments": [
+        {
+          "id": "comment_013",
+          "reviewerId": "user_001",
+          "content": "市场前景良好，但需要加强安全性设计",
+          "decision": "conditional_approve",
+          "createdAt": "2024-03-05T14:00:00Z"
+        },
+        {
+          "id": "comment_014",
+          "reviewerId": "user_003",
+          "content": "技术方案可行，建议增加风险控制措施",
+          "decision": "conditional_approve",
+          "createdAt": "2024-03-06T10:30:00Z"
+        },
+        {
+          "id": "comment_015",
+          "reviewerId": "user_015",
+          "content": "成本预算合理，但需要考虑合规成本",
+          "decision": "conditional_approve",
+          "createdAt": "2024-03-07T16:15:00Z"
+        },
+        {
+          "id": "comment_016",
+          "reviewerId": "user_009",
+          "content": "质量要求明确，需要制定详细的安全测试计划",
+          "decision": "conditional_approve",
+          "createdAt": "2024-03-08T15:45:00Z"
+        }
+      ]
+    },
+    {
+      "id": "dcp_009",
+      "projectId": "proj_005",
+      "stage": "concept",
+      "title": "云存储服务概念阶段评审",
+      "status": "rejected",
+      "result": "fail",
+      "reviewers": ["user_001", "user_003", "user_009"],
+      "deadline": "2024-02-20T18:00:00Z",
+      "createdAt": "2024-02-10T08:00:00Z",
+      "completedAt": "2024-02-18T16:00:00Z",
+      "priority": "medium",
+      "riskLevel": "high",
+      "comments": [
+        {
+          "id": "comment_017",
+          "reviewerId": "user_001",
+          "content": "市场竞争激烈，差异化不足，不建议继续",
+          "decision": "reject",
+          "createdAt": "2024-02-15T11:00:00Z"
+        },
+        {
+          "id": "comment_018",
+          "reviewerId": "user_003",
+          "content": "技术门槛高，开发成本过大，风险较高",
+          "decision": "reject",
+          "createdAt": "2024-02-16T14:30:00Z"
+        },
+        {
+          "id": "comment_019",
+          "reviewerId": "user_009",
+          "content": "质量要求与资源配置不匹配，建议暂停",
+          "decision": "reject",
+          "createdAt": "2024-02-18T15:20:00Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>项目概览 - IPD项目协作系统</title>
+    <link rel="stylesheet" href="css/common.css" />
+  </head>
+  <body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+      <div class="nav-container">
+        <div class="nav-brand">IPD项目协作系统</div>
+        <div class="nav-menu">
+          <a href="index.html">项目概览</a>
+          <a href="dashboard.html">仪表板</a>
+          <a href="team.html">团队协作</a>
+          <a href="stages.html">阶段管理</a>
+          <a href="dcp.html">DCP评审</a>
+          <a href="deliverables.html">交付物管理</a>
+          <a href="users.html">用户管理</a>
+          <a href="settings.html">系统设置</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+      <div class="container">
+        <!-- 页面标题 -->
+        <div style="margin-bottom: 30px">
+          <h1 style="color: #2c3e50; margin-bottom: 10px">项目概览</h1>
+          <p style="color: #666">管理和监控所有IPD项目的进展情况</p>
+        </div>
+
+        <!-- 项目统计 -->
+        <div class="grid grid-4" style="margin-bottom: 30px">
+          <div class="stat-card">
+            <div class="stat-number" id="total-projects">0</div>
+            <div class="stat-label">总项目数</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="active-projects"
+              style="color: #2ecc71"
+            >
+              0
+            </div>
+            <div class="stat-label">进行中</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="completed-projects"
+              style="color: #27ae60"
+            >
+              0
+            </div>
+            <div class="stat-label">已完成</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="stat-number"
+              id="planning-projects"
+              style="color: #f39c12"
+            >
+              0
+            </div>
+            <div class="stat-label">规划中</div>
+          </div>
+        </div>
+
+        <!-- 项目列表 -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">项目列表</h2>
+            <button
+              class="btn btn-primary"
+              onclick="showAlert('创建项目功能开发中')"
+            >
+              创建项目
+            </button>
+          </div>
+          <div class="card-content">
+            <div id="projects-container" class="grid grid-3">
+              <!-- 项目卡片将通过JavaScript动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 引入脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+      // 页面特定的JavaScript代码
+
+      // 渲染项目统计
+      function renderProjectStats() {
+        var projects = IPD_DATA.projects;
+        var totalProjects = projects.length;
+        var activeProjects = projects.filter(function (p) {
+          return p.status === "in_progress";
+        }).length;
+        var completedProjects = projects.filter(function (p) {
+          return p.status === "completed";
+        }).length;
+        var planningProjects = projects.filter(function (p) {
+          return p.status === "planning";
+        }).length;
+
+        document.getElementById("total-projects").textContent = totalProjects;
+        document.getElementById("active-projects").textContent = activeProjects;
+        document.getElementById("completed-projects").textContent =
+          completedProjects;
+        document.getElementById("planning-projects").textContent =
+          planningProjects;
+      }
+
+      // 渲染项目列表
+      function renderProjects() {
+        var container = document.getElementById("projects-container");
+        var projects = IPD_DATA.projects;
+        var html = "";
+
+        for (var i = 0; i < projects.length; i++) {
+          var project = projects[i];
+          html += '<div class="card">';
+          html += '<div class="card-header">';
+          html += '<h3 class="card-title">' + project.name + "</h3>";
+          html += createStatusBadge(project.status);
+          html += "</div>";
+          html += '<div class="card-content">';
+          html +=
+            '<p style="margin-bottom: 15px; color: #666; line-height: 1.5;">' +
+            project.description +
+            "</p>";
+          html += '<div style="margin-bottom: 15px;">';
+          html +=
+            '<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">';
+          html += '<span style="color: #666; font-size: 0.9em;">进度</span>';
+          html +=
+            '<span style="font-weight: bold; color: #3498db;">' +
+            project.progress +
+            "%</span>";
+          html += "</div>";
+          html += createProgressBar(project.progress);
+          html += "</div>";
+          html +=
+            '<div style="margin-bottom: 15px; font-size: 0.85em; color: #666;">';
+          html +=
+            '<div style="margin-bottom: 5px;">当前阶段: ' +
+            getStageText(project.currentStage) +
+            "</div>";
+          html += "<div>更新时间: " + formatDate(project.updatedAt) + "</div>";
+          html += "</div>";
+          html += '<div style="display: flex; gap: 10px;">';
+          html +=
+            '<button class="btn btn-outline" onclick="viewProject(\'' +
+            project.id +
+            "')\">查看详情</button>";
+          html +=
+            '<button class="btn btn-primary" onclick="showAlert(\'编辑功能开发中\')">编辑</button>';
+          html += "</div>";
+          html += "</div>";
+          html += "</div>";
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 查看项目详情
+      function viewProject(projectId) {
+        var project = IPD_DATA.projects.find(function (p) {
+          return p.id === projectId;
+        });
+        if (!project) {
+          showErrorMessage("项目不存在");
+          return;
+        }
+
+        var content = "<div>";
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px;">' +
+          project.name +
+          "</h4>";
+        content +=
+          '<p style="color: #666; margin-bottom: 20px; line-height: 1.6;">' +
+          project.description +
+          "</p>";
+
+        content +=
+          '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">';
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">项目状态</div>';
+        content +=
+          '<div style="font-weight: bold;">' +
+          getStatusText(project.status) +
+          "</div>";
+        content += "</div>";
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">当前阶段</div>';
+        content +=
+          '<div style="font-weight: bold;">' +
+          getStageText(project.currentStage) +
+          "</div>";
+        content += "</div>";
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">整体进度</div>';
+        content +=
+          '<div style="font-weight: bold; color: #3498db;">' +
+          project.progress +
+          "%</div>";
+        content += "</div>";
+        content +=
+          '<div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">';
+        content +=
+          '<div style="color: #666; margin-bottom: 5px;">最后更新</div>';
+        content +=
+          '<div style="font-weight: bold;">' +
+          formatDate(project.updatedAt) +
+          "</div>";
+        content += "</div>";
+        content += "</div>";
+
+        content +=
+          '<h5 style="color: #2c3e50; margin-bottom: 15px;">六阶段进度</h5>';
+        var stages = [
+          "concept",
+          "plan",
+          "develop",
+          "verify",
+          "release",
+          "lifecycle",
+        ];
+        for (var i = 0; i < stages.length; i++) {
+          var stageKey = stages[i];
+          var stage = project.stages[stageKey];
+          content +=
+            '<div style="display: flex; align-items: center; margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;">';
+          content +=
+            '<div style="min-width: 120px; font-weight: 500;">' +
+            stage.name +
+            "</div>";
+          content +=
+            '<div style="flex: 1; margin: 0 15px;">' +
+            createProgressBar(stage.progress) +
+            "</div>";
+          content +=
+            '<div style="min-width: 60px; text-align: right; font-weight: bold; color: #3498db;">' +
+            stage.progress +
+            "%</div>";
+          content += "</div>";
+        }
+
+        content += "</div>";
+
+        showModal("项目详情", content);
+      }
+
+      // 页面初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        // 加载数据后再渲染页面
+        loadData(function () {
+          safeRender(renderProjectStats, "total-projects");
+          safeRender(renderProjects, "projects-container");
+        });
+      });
+    </script>
+  </body>
+</html>
