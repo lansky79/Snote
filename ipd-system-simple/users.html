@@ -24,7 +24,7 @@
         <a href="deliverables.html">交付物管理</a>
         <a href="reports.html">报表中心</a>
         <a href="users.html">用户管理</a>
-        <a href="help.html">帮助</a>
+        <a href="help.html">帮助中心</a>
         <a href="settings.html">系统设置</a>
         <a href="#" onclick="logout()" class="logout">退出</a>
       </div>
@@ -272,7 +272,9 @@
             user.id +
             '\')" style="padding: 4px 8px; font-size: 0.8em;">详情</button>';
           html +=
-            '<button class="btn btn-primary" onclick="showAlert(\'编辑功能开发中\')" style="padding: 4px 8px; font-size: 0.8em;">编辑</button>';
+            '<button class="btn btn-primary" onclick="editUser(\'' +
+            user.id +
+            '\')" style="padding: 4px 8px; font-size: 0.8em;">编辑</button>';
           html += "</div>";
           html += "</td>";
 
@@ -472,6 +474,405 @@
         content += "</div>";
 
         showModal("用户详情", content);
+      }
+
+      // 编辑用户
+      function editUser(userId) {
+        var user = getUserById(userId);
+        if (!user) {
+          showErrorMessage("用户不存在");
+          return;
+        }
+
+        // 获取所有部门列表
+        var departments = [];
+        var users = IPD_DATA.users;
+        for (var i = 0; i < users.length; i++) {
+          if (departments.indexOf(users[i].department) === -1) {
+            departments.push(users[i].department);
+          }
+        }
+
+        var content = '<form id="editUserForm" style="max-width: 600px;">';
+        
+        // 基本信息
+        content += '<div style="margin-bottom: 25px;">';
+        content += '<h5 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 8px;">基本信息</h5>';
+        
+        content += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">姓名 <span style="color: #e74c3c;">*</span></label>';
+        content += '<input type="text" id="edit-name" value="' + user.name + '" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += '<div id="name-error" class="error-message"></div>';
+        content += '</div>';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">邮箱 <span style="color: #e74c3c;">*</span></label>';
+        content += '<input type="email" id="edit-email" value="' + user.email + '" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += '<div id="email-error" class="error-message"></div>';
+        content += '</div>';
+        content += '</div>';
+
+        content += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">电话 <span style="color: #e74c3c;">*</span></label>';
+        content += '<input type="tel" id="edit-phone" value="' + user.phone + '" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += '<div id="phone-error" class="error-message"></div>';
+        content += '</div>';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">入职时间</label>';
+        content += '<input type="date" id="edit-joinDate" value="' + user.joinDate + '" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">';
+        content += '</div>';
+        content += '</div>';
+        content += '</div>';
+
+        // 部门归属
+        content += '<div style="margin-bottom: 25px;">';
+        content += '<h5 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 8px;">部门归属</h5>';
+        
+        content += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">部门 <span style="color: #e74c3c;">*</span></label>';
+        content += '<select id="edit-department" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        for (var j = 0; j < departments.length; j++) {
+          var selected = departments[j] === user.department ? ' selected' : '';
+          content += '<option value="' + departments[j] + '"' + selected + '>' + departments[j] + '</option>';
+        }
+        content += '<option value="其他">其他</option>';
+        content += '</select>';
+        content += '</div>';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">职位 <span style="color: #e74c3c;">*</span></label>';
+        content += '<input type="text" id="edit-role" value="' + user.role + '" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += '<div id="role-error" class="error-message"></div>';
+        content += '</div>';
+        content += '</div>';
+        content += '</div>';
+
+        // 职位级别
+        content += '<div style="margin-bottom: 25px;">';
+        content += '<h5 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 8px;">职位级别</h5>';
+        
+        content += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">级别 <span style="color: #e74c3c;">*</span></label>';
+        content += '<select id="edit-level" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        var levels = ['初级', '中级', '高级'];
+        for (var k = 0; k < levels.length; k++) {
+          var selected = levels[k] === user.level ? ' selected' : '';
+          content += '<option value="' + levels[k] + '"' + selected + '>' + levels[k] + '</option>';
+        }
+        content += '</select>';
+        content += '</div>';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">工作负载 (%)</label>';
+        content += '<input type="number" id="edit-workload" value="' + user.workload + '" min="0" max="100" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">';
+        content += '<div id="workload-error" class="error-message"></div>';
+        content += '</div>';
+        content += '</div>';
+        content += '</div>';
+
+        // 权限设置
+        content += '<div style="margin-bottom: 25px;">';
+        content += '<h5 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 8px;">权限设置</h5>';
+        
+        content += '<div style="margin-bottom: 15px;">';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">账户状态</label>';
+        content += '<select id="edit-status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">';
+        content += '<option value="active"' + (user.status === 'active' ? ' selected' : '') + '>活跃</option>';
+        content += '<option value="inactive"' + (user.status === 'inactive' ? ' selected' : '') + '>非活跃</option>';
+        content += '</select>';
+        content += '</div>';
+        content += '</div>';
+
+        // 技能专长
+        content += '<div style="margin-bottom: 25px;">';
+        content += '<h5 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 8px;">技能专长</h5>';
+        content += '<div>';
+        content += '<label style="display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50;">技能标签 <span style="color: #666; font-weight: normal;">(用逗号分隔)</span></label>';
+        content += '<textarea id="edit-skills" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;" placeholder="请输入技能标签，用逗号分隔">' + user.skills.join(', ') + '</textarea>';
+        content += '<div style="color: #666; font-size: 0.8em; margin-top: 5px;">例如：项目管理, 产品规划, 团队协作</div>';
+        content += '</div>';
+        content += '</div>';
+
+        content += '</form>';
+
+        // 添加样式
+        content += '<style>';
+        content += '.error-message { color: #e74c3c; font-size: 0.8em; margin-top: 3px; min-height: 16px; }';
+        content += '.field-valid { border-color: #27ae60 !important; }';
+        content += '.field-invalid { border-color: #e74c3c !important; }';
+        content += '</style>';
+
+        var buttons = [
+          {
+            text: '取消',
+            className: 'btn btn-secondary',
+            onclick: 'closeModal()'
+          },
+          {
+            text: '保存',
+            className: 'btn btn-primary',
+            onclick: 'saveUserEdit("' + userId + '")'
+          }
+        ];
+
+        showModal("编辑用户信息", content, buttons);
+
+        // 添加实时验证
+        setTimeout(function() {
+          addUserFormValidation();
+        }, 100);
+      }
+
+      // 添加表单验证
+      function addUserFormValidation() {
+        var nameInput = document.getElementById('edit-name');
+        var emailInput = document.getElementById('edit-email');
+        var phoneInput = document.getElementById('edit-phone');
+        var roleInput = document.getElementById('edit-role');
+        var workloadInput = document.getElementById('edit-workload');
+
+        if (nameInput) {
+          nameInput.addEventListener('blur', function() {
+            validateName(this.value);
+          });
+        }
+
+        if (emailInput) {
+          emailInput.addEventListener('blur', function() {
+            validateEmail(this.value);
+          });
+        }
+
+        if (phoneInput) {
+          phoneInput.addEventListener('blur', function() {
+            validatePhone(this.value);
+          });
+        }
+
+        if (roleInput) {
+          roleInput.addEventListener('blur', function() {
+            validateRole(this.value);
+          });
+        }
+
+        if (workloadInput) {
+          workloadInput.addEventListener('blur', function() {
+            validateWorkload(this.value);
+          });
+        }
+      }
+
+      // 验证姓名
+      function validateName(name) {
+        var errorElement = document.getElementById('name-error');
+        var inputElement = document.getElementById('edit-name');
+        
+        if (!name || name.trim().length === 0) {
+          showFieldError(errorElement, inputElement, '姓名不能为空');
+          return false;
+        }
+        
+        if (name.trim().length < 2) {
+          showFieldError(errorElement, inputElement, '姓名至少需要2个字符');
+          return false;
+        }
+        
+        if (name.trim().length > 20) {
+          showFieldError(errorElement, inputElement, '姓名不能超过20个字符');
+          return false;
+        }
+        
+        // 检查是否包含特殊字符
+        var nameRegex = /^[\u4e00-\u9fa5a-zA-Z\s]+$/;
+        if (!nameRegex.test(name.trim())) {
+          showFieldError(errorElement, inputElement, '姓名只能包含中文、英文和空格');
+          return false;
+        }
+        
+        showFieldSuccess(errorElement, inputElement);
+        return true;
+      }
+
+      // 验证邮箱
+      function validateEmail(email) {
+        var errorElement = document.getElementById('email-error');
+        var inputElement = document.getElementById('edit-email');
+        
+        if (!email || email.trim().length === 0) {
+          showFieldError(errorElement, inputElement, '邮箱不能为空');
+          return false;
+        }
+        
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) {
+          showFieldError(errorElement, inputElement, '请输入有效的邮箱地址');
+          return false;
+        }
+        
+        showFieldSuccess(errorElement, inputElement);
+        return true;
+      }
+
+      // 验证电话
+      function validatePhone(phone) {
+        var errorElement = document.getElementById('phone-error');
+        var inputElement = document.getElementById('edit-phone');
+        
+        if (!phone || phone.trim().length === 0) {
+          showFieldError(errorElement, inputElement, '电话不能为空');
+          return false;
+        }
+        
+        // 支持多种电话格式
+        var phoneRegex = /^(1[3-9]\d{9}|(\d{3,4}[-\s]?)?\d{7,8}|\d{3}\*{4}\d{4})$/;
+        if (!phoneRegex.test(phone.trim().replace(/\s+/g, ''))) {
+          showFieldError(errorElement, inputElement, '请输入有效的电话号码');
+          return false;
+        }
+        
+        showFieldSuccess(errorElement, inputElement);
+        return true;
+      }
+
+      // 验证职位
+      function validateRole(role) {
+        var errorElement = document.getElementById('role-error');
+        var inputElement = document.getElementById('edit-role');
+        
+        if (!role || role.trim().length === 0) {
+          showFieldError(errorElement, inputElement, '职位不能为空');
+          return false;
+        }
+        
+        if (role.trim().length < 2) {
+          showFieldError(errorElement, inputElement, '职位至少需要2个字符');
+          return false;
+        }
+        
+        if (role.trim().length > 30) {
+          showFieldError(errorElement, inputElement, '职位不能超过30个字符');
+          return false;
+        }
+        
+        showFieldSuccess(errorElement, inputElement);
+        return true;
+      }
+
+      // 验证工作负载
+      function validateWorkload(workload) {
+        var errorElement = document.getElementById('workload-error');
+        var inputElement = document.getElementById('edit-workload');
+        
+        if (workload === '' || workload === null || workload === undefined) {
+          showFieldSuccess(errorElement, inputElement);
+          return true; // 工作负载可以为空
+        }
+        
+        var workloadNum = parseInt(workload);
+        if (isNaN(workloadNum) || workloadNum < 0 || workloadNum > 100) {
+          showFieldError(errorElement, inputElement, '工作负载必须是0-100之间的数字');
+          return false;
+        }
+        
+        showFieldSuccess(errorElement, inputElement);
+        return true;
+      }
+
+      // 显示字段错误
+      function showFieldError(errorElement, inputElement, message) {
+        if (errorElement) {
+          errorElement.textContent = message;
+          errorElement.style.display = 'block';
+        }
+        if (inputElement) {
+          inputElement.classList.remove('field-valid');
+          inputElement.classList.add('field-invalid');
+        }
+      }
+
+      // 显示字段成功
+      function showFieldSuccess(errorElement, inputElement) {
+        if (errorElement) {
+          errorElement.textContent = '';
+          errorElement.style.display = 'none';
+        }
+        if (inputElement) {
+          inputElement.classList.remove('field-invalid');
+          inputElement.classList.add('field-valid');
+        }
+      }
+
+      // 保存用户编辑
+      function saveUserEdit(userId) {
+        // 获取表单数据
+        var name = document.getElementById('edit-name').value.trim();
+        var email = document.getElementById('edit-email').value.trim();
+        var phone = document.getElementById('edit-phone').value.trim();
+        var department = document.getElementById('edit-department').value;
+        var role = document.getElementById('edit-role').value.trim();
+        var level = document.getElementById('edit-level').value;
+        var workload = document.getElementById('edit-workload').value;
+        var status = document.getElementById('edit-status').value;
+        var joinDate = document.getElementById('edit-joinDate').value;
+        var skillsText = document.getElementById('edit-skills').value.trim();
+
+        // 验证所有字段
+        var isValid = true;
+        isValid = validateName(name) && isValid;
+        isValid = validateEmail(email) && isValid;
+        isValid = validatePhone(phone) && isValid;
+        isValid = validateRole(role) && isValid;
+        isValid = validateWorkload(workload) && isValid;
+
+        if (!isValid) {
+          showErrorMessage('请修正表单中的错误后再提交');
+          return;
+        }
+
+        // 检查邮箱是否重复（排除当前用户）
+        var users = IPD_DATA.users;
+        for (var i = 0; i < users.length; i++) {
+          if (users[i].id !== userId && users[i].email === email) {
+            showFieldError(document.getElementById('email-error'), document.getElementById('edit-email'), '该邮箱已被其他用户使用');
+            showErrorMessage('邮箱地址已存在，请使用其他邮箱');
+            return;
+          }
+        }
+
+        // 处理技能数组
+        var skills = [];
+        if (skillsText) {
+          skills = skillsText.split(',').map(function(skill) {
+            return skill.trim();
+          }).filter(function(skill) {
+            return skill.length > 0;
+          });
+        }
+
+        // 更新用户数据
+        var user = getUserById(userId);
+        if (user) {
+          user.name = name;
+          user.email = email;
+          user.phone = phone;
+          user.department = department;
+          user.role = role;
+          user.level = level;
+          user.workload = workload ? parseInt(workload) : 0;
+          user.status = status;
+          user.joinDate = joinDate;
+          user.skills = skills;
+
+          // 重新渲染页面
+          renderUserStats();
+          renderUsersTable();
+          
+          closeModal();
+          showSuccessMessage('用户信息更新成功');
+        } else {
+          showErrorMessage('用户不存在，无法更新');
+        }
       }
 
       // 页面初始化

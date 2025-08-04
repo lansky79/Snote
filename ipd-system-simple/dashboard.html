@@ -24,7 +24,7 @@
         <a href="deliverables.html">交付物管理</a>
         <a href="reports.html">报表中心</a>
         <a href="users.html">用户管理</a>
-        <a href="help.html">帮助</a>
+        <a href="help.html">帮助中心</a>
         <a href="settings.html">系统设置</a>
         <a href="#" onclick="logout()" class="logout">退出</a>
       </div>
@@ -516,18 +516,39 @@
             return r.status === "completed";
           });
           var passedReviews = completedReviews.filter(function (r) {
-            return r.result === "pass";
+            return r.result === "pass" || r.result === "conditional_pass";
           });
 
-          var passRate =
-            completedReviews.length > 0
-              ? Math.round(
-                  (passedReviews.length / completedReviews.length) * 100
-                )
-              : 0;
+          var passRate = 0;
+          var displayText = "";
 
-          var dcpColor =
-            passRate >= 80 ? "#27ae60" : passRate >= 60 ? "#f39c12" : "#e74c3c";
+          if (projectReviews.length === 0) {
+            // 没有DCP评审记录
+            passRate = 0;
+            displayText = "无评审";
+          } else if (completedReviews.length === 0) {
+            // 有评审但都未完成
+            passRate = 0;
+            displayText = "进行中";
+          } else {
+            // 有已完成的评审
+            passRate = Math.round(
+              (passedReviews.length / completedReviews.length) * 100
+            );
+            displayText = passRate + "%";
+          }
+
+          var dcpColor;
+          if (displayText === "无评审" || displayText === "进行中") {
+            dcpColor = "#95a5a6"; // 灰色表示无数据或进行中
+          } else {
+            dcpColor =
+              passRate >= 80
+                ? "#27ae60"
+                : passRate >= 60
+                ? "#f39c12"
+                : "#e74c3c";
+          }
 
           html += '<div class="progress-item">';
           html +=
@@ -541,12 +562,14 @@
           html += '<div class="progress-bar-mini">';
           html +=
             '<div class="progress-fill-mini" style="width: ' +
-            passRate +
+            (displayText === "无评审" || displayText === "进行中"
+              ? 20
+              : passRate) +
             "%; background: " +
             dcpColor +
             ';"></div>';
           html += "</div>";
-          html += '<div class="progress-value">' + passRate + "%</div>";
+          html += '<div class="progress-value">' + displayText + "</div>";
           html += "</div>";
         });
 

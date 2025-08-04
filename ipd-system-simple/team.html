@@ -24,7 +24,7 @@
         <a href="deliverables.html">交付物管理</a>
         <a href="reports.html">报表中心</a>
         <a href="users.html">用户管理</a>
-        <a href="help.html">帮助</a>
+        <a href="help.html">帮助中心</a>
         <a href="settings.html">系统设置</a>
         <a href="#" onclick="logout()" class="logout">退出</a>
       </div>
@@ -228,7 +228,9 @@
               user.id +
               '\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">查看详情</button>';
             html +=
-              '<button class="btn btn-primary" onclick="showAlert(\'分配任务功能开发中\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">分配任务</button>';
+              '<button class="btn btn-primary" onclick="showTaskAssignModal(\'' +
+              user.id +
+              '\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">分配任务</button>';
             html += "</div>";
             html += "</div>";
           }
@@ -239,6 +241,353 @@
         }
 
         container.innerHTML = html;
+      }
+
+      // 显示任务分配弹窗
+      function showTaskAssignModal(userId) {
+        var user = getUserById(userId);
+        if (!user) {
+          showErrorMessage("用户不存在");
+          return;
+        }
+
+        var content = '<div style="max-width: 600px;">';
+
+        // 任务基本信息
+        content += '<div style="margin-bottom: 25px;">';
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 8px;">任务基本信息</h4>';
+
+        content +=
+          '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">任务标题 *</label>';
+        content +=
+          '<input type="text" id="taskTitle" placeholder="请输入任务标题" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">优先级 *</label>';
+        content +=
+          '<select id="taskPriority" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += '<option value="high">高优先级</option>';
+        content += '<option value="medium" selected>中优先级</option>';
+        content += '<option value="low">低优先级</option>';
+        content += "</select>";
+        content += "</div>";
+        content += "</div>";
+
+        content +=
+          '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">所属项目</label>';
+        content +=
+          '<select id="taskProject" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += '<option value="">请选择项目</option>';
+        var projects = IPD_DATA.projects || [];
+        for (var i = 0; i < projects.length; i++) {
+          content +=
+            '<option value="' +
+            projects[i].id +
+            '">' +
+            projects[i].name +
+            "</option>";
+        }
+        content += "</select>";
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">任务类型</label>';
+        content +=
+          '<select id="taskType" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += '<option value="development">开发任务</option>';
+        content += '<option value="design">设计任务</option>';
+        content += '<option value="testing">测试任务</option>';
+        content += '<option value="documentation">文档任务</option>';
+        content += '<option value="review">评审任务</option>';
+        content += '<option value="other">其他任务</option>';
+        content += "</select>";
+        content += "</div>";
+        content += "</div>";
+
+        content += '<div style="margin-bottom: 15px;">';
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">任务描述</label>';
+        content +=
+          '<textarea id="taskDescription" placeholder="请详细描述任务内容、要求和预期结果..." style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; resize: vertical;"></textarea>';
+        content += "</div>";
+        content += "</div>";
+
+        // 分配信息
+        content += '<div style="margin-bottom: 25px;">';
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #27ae60; padding-bottom: 8px;">分配信息</h4>';
+
+        content +=
+          '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">分配给 *</label>';
+        content +=
+          '<div style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">';
+        content +=
+          '<div style="width: 35px; height: 35px; border-radius: 50%; background: #3498db; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 10px;">';
+        content += user.name.charAt(0);
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<div style="font-weight: bold; color: #2c3e50;">' +
+          user.name +
+          "</div>";
+        content +=
+          '<div style="color: #666; font-size: 0.85em;">' +
+          user.role +
+          " - " +
+          user.department +
+          "</div>";
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">当前负载</label>';
+        var workloadColor =
+          user.workload > 80
+            ? "#e74c3c"
+            : user.workload > 60
+            ? "#f39c12"
+            : "#27ae60";
+        content +=
+          '<div style="padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">';
+        content +=
+          '<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">';
+        content += '<span style="color: #666;">工作负载</span>';
+        content +=
+          '<span style="font-weight: bold; color: ' +
+          workloadColor +
+          ';">' +
+          user.workload +
+          "%</span>";
+        content += "</div>";
+        content +=
+          '<div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
+        content +=
+          '<div style="background: ' +
+          workloadColor +
+          "; height: 100%; width: " +
+          user.workload +
+          '%; transition: width 0.3s ease;"></div>';
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+
+        content +=
+          '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">开始日期 *</label>';
+        var today = new Date().toISOString().split("T")[0];
+        content +=
+          '<input type="date" id="taskStartDate" value="' +
+          today +
+          '" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">截止日期 *</label>';
+        var nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        var nextWeekStr = nextWeek.toISOString().split("T")[0];
+        content +=
+          '<input type="date" id="taskEndDate" value="' +
+          nextWeekStr +
+          '" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += "</div>";
+        content += "</div>";
+
+        content +=
+          '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">';
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">预估工时（小时）</label>';
+        content +=
+          '<input type="number" id="taskEstimatedHours" placeholder="8" min="1" max="200" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += "</div>";
+        content += "<div>";
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">任务状态</label>';
+        content +=
+          '<select id="taskStatus" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += '<option value="pending">待开始</option>';
+        content += '<option value="in-progress">进行中</option>';
+        content += '<option value="review">待评审</option>';
+        content += '<option value="completed">已完成</option>';
+        content += "</select>";
+        content += "</div>";
+        content += "</div>";
+        content += "</div>";
+
+        // 附加信息
+        content += '<div style="margin-bottom: 25px;">';
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #f39c12; padding-bottom: 8px;">附加信息</h4>';
+
+        content += '<div style="margin-bottom: 15px;">';
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">相关文档链接</label>';
+        content +=
+          '<input type="url" id="taskDocuments" placeholder="https://..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">';
+        content += "</div>";
+
+        content += '<div style="margin-bottom: 15px;">';
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666; font-weight: bold;">备注说明</label>';
+        content +=
+          '<textarea id="taskNotes" placeholder="其他需要说明的事项..." style="width: 100%; height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; resize: vertical;"></textarea>';
+        content += "</div>";
+
+        content +=
+          '<div style="display: flex; align-items: center; gap: 10px;">';
+        content +=
+          '<input type="checkbox" id="taskNotification" checked style="margin: 0;">';
+        content +=
+          '<label for="taskNotification" style="color: #666; margin: 0;">发送邮件通知给被分配人</label>';
+        content += "</div>";
+        content += "</div>";
+
+        content += "</div>";
+
+        var buttons = [
+          {
+            text: "取消",
+            className: "btn btn-outline",
+            onclick: "closeModal()",
+          },
+          {
+            text: "分配任务",
+            className: "btn btn-primary",
+            onclick: 'submitTaskAssignment("' + userId + '")',
+          },
+        ];
+
+        showModal("分配任务给 " + user.name, content, buttons);
+      }
+
+      // 提交任务分配
+      function submitTaskAssignment(userId) {
+        var title = document.getElementById("taskTitle").value.trim();
+        var priority = document.getElementById("taskPriority").value;
+        var project = document.getElementById("taskProject").value;
+        var type = document.getElementById("taskType").value;
+        var description = document
+          .getElementById("taskDescription")
+          .value.trim();
+        var startDate = document.getElementById("taskStartDate").value;
+        var endDate = document.getElementById("taskEndDate").value;
+        var estimatedHours =
+          document.getElementById("taskEstimatedHours").value;
+        var status = document.getElementById("taskStatus").value;
+        var documents = document.getElementById("taskDocuments").value.trim();
+        var notes = document.getElementById("taskNotes").value.trim();
+        var notification = document.getElementById("taskNotification").checked;
+
+        // 验证必填字段
+        if (!title) {
+          showErrorMessage("请输入任务标题");
+          return;
+        }
+        if (!startDate) {
+          showErrorMessage("请选择开始日期");
+          return;
+        }
+        if (!endDate) {
+          showErrorMessage("请选择截止日期");
+          return;
+        }
+        if (new Date(startDate) > new Date(endDate)) {
+          showErrorMessage("开始日期不能晚于截止日期");
+          return;
+        }
+
+        var user = getUserById(userId);
+        var projectName = project
+          ? getProjectById(project)?.name || "未指定项目"
+          : "未指定项目";
+
+        // 创建任务对象
+        var task = {
+          id: "task_" + Date.now(),
+          title: title,
+          description: description,
+          priority: priority,
+          project: project,
+          projectName: projectName,
+          type: type,
+          assignedTo: userId,
+          assignedToName: user.name,
+          assignedBy: "当前用户", // 实际应用中应该是当前登录用户
+          startDate: startDate,
+          endDate: endDate,
+          estimatedHours: estimatedHours ? parseInt(estimatedHours) : null,
+          status: status,
+          documents: documents,
+          notes: notes,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        // 模拟保存任务（实际应用中应该调用API）
+        console.log("创建任务:", task);
+
+        // 显示成功消息
+        var successMessage = '<div style="text-align: center; padding: 20px;">';
+        successMessage +=
+          '<div style="width: 60px; height: 60px; border-radius: 50%; background: #27ae60; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px;">✓</div>';
+        successMessage +=
+          '<h3 style="color: #27ae60; margin-bottom: 15px;">任务分配成功！</h3>';
+        successMessage += '<div style="color: #666; margin-bottom: 20px;">';
+        successMessage += "<p><strong>任务标题：</strong>" + title + "</p>";
+        successMessage +=
+          "<p><strong>分配给：</strong>" +
+          user.name +
+          " (" +
+          user.department +
+          ")</p>";
+        successMessage +=
+          "<p><strong>优先级：</strong>" + getPriorityText(priority) + "</p>";
+        successMessage += "<p><strong>截止日期：</strong>" + endDate + "</p>";
+        if (notification) {
+          successMessage +=
+            '<p style="color: #3498db;"><strong>✉ 邮件通知已发送</strong></p>';
+        }
+        successMessage += "</div>";
+        successMessage += "</div>";
+
+        closeModal();
+        showModal("任务分配成功", successMessage, [
+          {
+            text: "确定",
+            className: "btn btn-primary",
+            onclick: "closeModal()",
+          },
+        ]);
+      }
+
+      // 获取优先级文本
+      function getPriorityText(priority) {
+        switch (priority) {
+          case "high":
+            return "高优先级";
+          case "medium":
+            return "中优先级";
+          case "low":
+            return "低优先级";
+          default:
+            return priority;
+        }
       }
 
       // 查看用户详情

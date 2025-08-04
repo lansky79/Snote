@@ -192,5 +192,93 @@
     "priority": "low",
     "riskLevel": "low",
     "comments": []
+  },
+  {
+    "id": "dcp_010",
+    "projectId": "proj_002",
+    "stage": "concept",
+    "title": "矿山综合管控系统概念阶段DCP评审",
+    "status": "completed",
+    "result": "pass",
+    "reviewers": ["user_001", "user_003", "user_005"],
+    "deadline": "2023-10-25",
+    "createdAt": "2023-10-20",
+    "completedAt": "2023-10-24",
+    "priority": "high",
+    "riskLevel": "medium",
+    "comments": [
+      {
+        "reviewerId": "user_001",
+        "comment": "系统架构设计合理，技术方案可行",
+        "decision": "approve",
+        "createdAt": "2023-10-22"
+      }
+    ]
+  },
+  {
+    "id": "dcp_011",
+    "projectId": "proj_002",
+    "stage": "plan",
+    "title": "矿山综合管控系统计划阶段DCP评审",
+    "status": "completed",
+    "result": "conditional_pass",
+    "reviewers": ["user_001", "user_003", "user_005"],
+    "deadline": "2023-11-15",
+    "createdAt": "2023-11-10",
+    "completedAt": "2023-11-14",
+    "priority": "high",
+    "riskLevel": "medium",
+    "comments": [
+      {
+        "reviewerId": "user_003",
+        "comment": "计划详细，但需要加强风险管控措施",
+        "decision": "approve",
+        "createdAt": "2023-11-12"
+      }
+    ]
+  },
+  {
+    "id": "dcp_012",
+    "projectId": "proj_004",
+    "stage": "plan",
+    "title": "道路保洁精细化管理系统计划阶段DCP评审",
+    "status": "completed",
+    "result": "pass",
+    "reviewers": ["user_001", "user_002", "user_004"],
+    "deadline": "2024-02-25",
+    "createdAt": "2024-02-20",
+    "completedAt": "2024-02-24",
+    "priority": "medium",
+    "riskLevel": "low",
+    "comments": [
+      {
+        "reviewerId": "user_002",
+        "comment": "系统设计符合需求，技术路线清晰",
+        "decision": "approve",
+        "createdAt": "2024-02-22"
+      }
+    ]
+  },
+  {
+    "id": "dcp_013",
+    "projectId": "proj_005",
+    "stage": "concept",
+    "title": "智慧公厕管理系统概念阶段DCP评审",
+    "status": "completed",
+    "result": "pass",
+    "reviewers": ["user_002", "user_004"],
+    "deadline": "2024-01-30",
+    "createdAt": "2024-01-25",
+    "completedAt": "2024-01-29",
+    "priority": "low",
+    "riskLevel": "low",
+    "comments": [
+      {
+        "reviewerId": "user_004",
+        "comment": "概念清晰，市场定位准确",
+        "decision": "approve",
+        "createdAt": "2024-01-28"
+      }
+    ]
   }
 ]

@@ -58,7 +58,7 @@ function showSuccessMessage(message) {
 // 显示错误消息
 function showErrorMessage(message) {
   var messageDiv = document.createElement("div");
-  messageDiv.className = "error-message";
+  messageDiv.className = "error-message global";
   messageDiv.textContent = message;
   document.body.appendChild(messageDiv);
 
@@ -145,12 +145,12 @@ function createStatusBadge(status) {
 }
 
 // 简单的模态框功能
-function showModal(title, content) {
+function showModal(title, content, buttons) {
   // 创建模态框HTML
   var modalHtml =
     '<div id="simple-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">';
   modalHtml +=
-    '<div style="background: white; border-radius: 8px; padding: 20px; max-width: 600px; width: 90%; max-height: 80%; overflow-y: auto;">';
+    '<div style="background: white; border-radius: 8px; padding: 20px; max-width: 800px; width: 90%; max-height: 90%; overflow-y: auto;">';
   modalHtml +=
     '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e9ecef;">';
   modalHtml += '<h3 style="margin: 0; color: #2c3e50;">' + title + "</h3>";
@@ -158,6 +158,25 @@ function showModal(title, content) {
     '<button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999;">&times;</button>';
   modalHtml += "</div>";
   modalHtml += "<div>" + content + "</div>";
+
+  // 添加按钮
+  if (buttons && buttons.length > 0) {
+    modalHtml +=
+      '<div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e9ecef;">';
+    for (var i = 0; i < buttons.length; i++) {
+      var btn = buttons[i];
+      modalHtml +=
+        '<button class="' +
+        (btn.className || "btn") +
+        '" onclick="' +
+        (btn.onclick || "") +
+        '">' +
+        btn.text +
+        "</button>";
+    }
+    modalHtml += "</div>";
+  }
+
   modalHtml += "</div>";
   modalHtml += "</div>";
 
