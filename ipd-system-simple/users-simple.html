@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 源踔科技集成产品开发管理系统</title>
+    <link rel="stylesheet" href="css/common.css">
+</head>
+<body>
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="system-title">
+                <div class="company-name">源踔科技</div>
+                <div class="system-name">集成产品开发管理系统</div>
+            </div>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html">项目概览</a>
+            <a href="dashboard.html">数据分析</a>
+            <a href="team.html">团队协作</a>
+            <a href="stages.html">阶段管理</a>
+            <a href="dcp.html">DCP评审</a>
+            <a href="deliverables.html">交付物管理</a>
+            <a href="reports.html">报表中心</a>
+            <a href="users-simple.html">用户管理</a>
+            <a href="help.html">帮助中心</a>
+            <a href="settings.html">系统设置</a>
+            <a href="#" onclick="logout()" class="logout">退出</a>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <h2>用户管理</h2>
+        
+        <!-- 用户统计 -->
+        <div class="grid grid-4" style="margin-bottom: 30px">
+            <div class="stat-card">
+                <div class="stat-number" id="total-users">0</div>
+                <div class="stat-label">总用户数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="active-users" style="color: #27ae60">0</div>
+                <div class="stat-label">活跃用户</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="departments-count" style="color: #3498db">0</div>
+                <div class="stat-label">部门数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avg-tasks" style="color: #f39c12">0</div>
+                <div class="stat-label">平均任务数</div>
+            </div>
+        </div>
+
+        <!-- 用户列表 -->
+        <div class="card">
+            <div class="card-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>用户列表</h3>
+                    <div>
+                        <button class="btn btn-secondary" onclick="showAlert('导出功能开发中')">导出用户</button>
+                        <button class="btn btn-primary" onclick="showAlert('添加用户功能开发中')">添加用户</button>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>邮箱</th>
+                                <th>部门</th>
+                                <th>职位</th>
+                                <th>级别</th>
+                                <th>工作负载</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- 用户数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 引入脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        // 渲染用户统计
+        function renderUserStats() {
+            var users = IPD_DATA.users;
+            var totalUsers = users.length;
+            var activeUsers = users.filter(function(u) { return u.status === "active"; }).length;
+            
+            var departments = {};
+            for (var i = 0; i < users.length; i++) {
+                departments[users[i].department] = true;
+            }
+            var departmentsCount = Object.keys(departments).length;
+            
+            var avgTasks = totalUsers > 0 ? Math.round(
+                users.reduce(function(sum, u) { return sum + u.completedTasks + u.ongoingTasks; }, 0) / totalUsers
+            ) : 0;
+
+            document.getElementById("total-users").textContent = totalUsers;
+            document.getElementById("active-users").textContent = activeUsers;
+            document.getElementById("departments-count").textContent = departmentsCount;
+            document.getElementById("avg-tasks").textContent = avgTasks;
+        }
+
+        // 渲染用户表格
+        function renderUsersTable() {
+            var tbody = document.getElementById("users-table-body");
+            var users = IPD_DATA.users;
+            var html = "";
+
+            for (var i = 0; i < users.length; i++) {
+                var user = users[i];
+                var workloadColor = user.workload > 80 ? "#e74c3c" : "#27ae60";
+                
+                html += "<tr>";
+                html += "<td><strong>" + user.name + "</strong><br><small>ID: " + user.id + "</small></td>";
+                html += "<td>" + user.email + "</td>";
+                html += "<td>" + user.department + "</td>";
+                html += "<td>" + user.role + "</td>";
+                html += "<td><span style='background: " + getLevelColor(user.level) + "; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.8em;'>" + user.level + "</span></td>";
+                html += "<td><span style='color: " + workloadColor + "; font-weight: bold;'>" + user.workload + "%</span></td>";
+                html += "<td><span style='color: " + (user.status === 'active' ? '#27ae60' : '#e74c3c') + ";'>" + (user.status === 'active' ? '活跃' : '非活跃') + "</span></td>";
+                html += "<td>";
+                html += "<button class='btn btn-outline' onclick='viewUserDetail(\"" + user.id + "\")' style='padding: 4px 8px; font-size: 0.8em; margin-right: 5px;'>详情</button>";
+                html += "<button class='btn btn-primary' onclick='editUser(\"" + user.id + "\")' style='padding: 4px 8px; font-size: 0.8em;'>编辑</button>";
+                html += "</td>";
+                html += "</tr>";
+            }
+
+            tbody.innerHTML = html;
+        }
+
+        // 获取用户级别颜色
+        function getLevelColor(level) {
+            var colors = { "高级": "#e74c3c", "中级": "#f39c12", "初级": "#3498db" };
+            return colors[level] || "#95a5a6";
+        }
+
+        // 查看用户详情
+        function viewUserDetail(userId) {
+            var user = getUserById(userId);
+            if (!user) {
+                showErrorMessage("用户不存在");
+                return;
+            }
+
+            var content = "<div>";
+            content += "<h4>用户详细信息</h4>";
+            content += "<div style='display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;'>";
+            content += "<div><strong>姓名:</strong> " + user.name + "</div>";
+            content += "<div><strong>邮箱:</strong> " + user.email + "</div>";
+            content += "<div><strong>电话:</strong> " + user.phone + "</div>";
+            content += "<div><strong>部门:</strong> " + user.department + "</div>";
+            content += "<div><strong>职位:</strong> " + user.role + "</div>";
+            content += "<div><strong>级别:</strong> " + user.level + "</div>";
+            content += "<div><strong>工作负载:</strong> " + user.workload + "%</div>";
+            content += "<div><strong>状态:</strong> " + (user.status === "active" ? "活跃" : "非活跃") + "</div>";
+            content += "</div>";
+            content += "<div style='margin-top: 20px;'><strong>技能:</strong> " + user.skills.join(", ") + "</div>";
+            content += "</div>";
+
+            showModal("用户详情", content);
+        }
+
+        // 编辑用户
+        function editUser(userId) {
+            var user = getUserById(userId);
+            if (!user) {
+                showErrorMessage("用户不存在");
+                return;
+            }
+
+            var content = "<form id='editUserForm'>";
+            content += "<div style='display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;'>";
+            content += "<div><label style='display: block; margin-bottom: 5px; font-weight: bold;'>姓名 *</label>";
+            content += "<input type='text' id='edit-name' value='" + user.name + "' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;' required></div>";
+            content += "<div><label style='display: block; margin-bottom: 5px; font-weight: bold;'>邮箱 *</label>";
+            content += "<input type='email' id='edit-email' value='" + user.email + "' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;' required></div>";
+            content += "</div>";
+
+            content += "<div style='display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;'>";
+            content += "<div><label style='display: block; margin-bottom: 5px; font-weight: bold;'>电话 *</label>";
+            content += "<input type='tel' id='edit-phone' value='" + user.phone + "' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;' required></div>";
+            content += "<div><label style='display: block; margin-bottom: 5px; font-weight: bold;'>部门</label>";
+            content += "<input type='text' id='edit-department' value='" + user.department + "' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'></div>";
+            content += "</div>";
+
+            content += "<div style='display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;'>";
+            content += "<div><label style='display: block; margin-bottom: 5px; font-weight: bold;'>职位</label>";
+            content += "<input type='text' id='edit-role' value='" + user.role + "' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'></div>";
+            content += "<div><label style='display: block; margin-bottom: 5px; font-weight: bold;'>级别</label>";
+            content += "<select id='edit-level' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'>";
+            var levels = ['初级', '中级', '高级'];
+            for (var k = 0; k < levels.length; k++) {
+                var selected = levels[k] === user.level ? ' selected' : '';
+                content += "<option value='" + levels[k] + "'" + selected + ">" + levels[k] + "</option>";
+            }
+            content += "</select></div>";
+            content += "</div>";
+
+            content += "<div style='display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;'>";
+            content += "<div><label style='display: block; margin-bottom: 5px; font-weight: bold;'>工作负载 (%)</label>";
+            content += "<input type='number' id='edit-workload' value='" + user.workload + "' min='0' max='100' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'></div>";
+            content += "<div><label style='display: block; margin-bottom: 5px; font-weight: bold;'>状态</label>";
+            content += "<select id='edit-status' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'>";
+            content += "<option value='active'" + (user.status === 'active' ? ' selected' : '') + ">活跃</option>";
+            content += "<option value='inactive'" + (user.status === 'inactive' ? ' selected' : '') + ">非活跃</option>";
+            content += "</select></div>";
+            content += "</div>";
+
+            content += "<div style='margin-bottom: 15px;'>";
+            content += "<label style='display: block; margin-bottom: 5px; font-weight: bold;'>技能 (用逗号分隔)</label>";
+            content += "<textarea id='edit-skills' rows='3' style='width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'>" + user.skills.join(', ') + "</textarea>";
+            content += "</div>";
+            content += "</form>";
+
+            var buttons = [
+                { text: '取消', className: 'btn btn-secondary', onclick: 'closeModal()' },
+                { text: '保存', className: 'btn btn-primary', onclick: 'saveUserEdit("' + userId + '")' }
+            ];
+
+            showModal("编辑用户信息", content, buttons);
+        }
+
+        // 保存用户编辑
+        function saveUserEdit(userId) {
+            var name = document.getElementById('edit-name').value.trim();
+            var email = document.getElementById('edit-email').value.trim();
+            var phone = document.getElementById('edit-phone').value.trim();
+            var department = document.getElementById('edit-department').value.trim();
+            var role = document.getElementById('edit-role').value.trim();
+            var level = document.getElementById('edit-level').value;
+            var workload = document.getElementById('edit-workload').value;
+            var status = document.getElementById('edit-status').value;
+            var skillsText = document.getElementById('edit-skills').value.trim();
+
+            // 基本验证
+            if (!name || !email || !phone) {
+                showErrorMessage('请填写必填字段');
+                return;
+            }
+
+            // 邮箱格式验证
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showErrorMessage('请输入有效的邮箱地址');
+                return;
+            }
+
+            // 处理技能数组
+            var skills = [];
+            if (skillsText) {
+                skills = skillsText.split(',').map(function(skill) {
+                    return skill.trim();
+                }).filter(function(skill) {
+                    return skill.length > 0;
+                });
+            }
+
+            // 更新用户数据
+            var user = getUserById(userId);
+            if (user) {
+                user.name = name;
+                user.email = email;
+                user.phone = phone;
+                user.department = department || user.department;
+                user.role = role || user.role;
+                user.level = level;
+                user.workload = workload ? parseInt(workload) : user.workload;
+                user.status = status;
+                user.skills = skills;
+
+                // 重新渲染页面
+                renderUserStats();
+                renderUsersTable();
+                
+                closeModal();
+                showSuccessMessage('用户信息更新成功');
+            } else {
+                showErrorMessage('用户不存在，无法更新');
+            }
+        }
+
+        // 页面初始化
+        document.addEventListener("DOMContentLoaded", function() {
+            // 检查登录状态
+            if (sessionStorage.getItem("isLoggedIn") !== "true") {
+                window.location.href = "login.html";
+                return;
+            }
+
+            loadData(function() {
+                safeRender(renderUserStats, "total-users");
+                safeRender(renderUsersTable, "users-table-body");
+            });
+        });
+    </script>
+</body>
+</html>
+      }
+
+      // 获取用户级别颜色
+      function getLevelColor(level) {
+        var colors = {
+          高级: "#e74c3c",
+          中级: "#f39c12",
+          初级: "#3498db",
+        };
+        return colors[level] || "#95a5a6";
+      }
+
+      // 渲染用户表格
+      function renderUsersTable() {
+        try {
+          var tbody = document.getElementById("users-table-body");
+          var users = IPD_DATA.users || [];
+          var html = "";
+
+          for (var i = 0; i < users.length; i++) {
+            var user = users[i];
+            var workloadColor =
+              (user.workload || 0) > 80 ? "#e74c3c" : "#27ae60";
+
+            html += "<tr>";
+
+            // 用户信息
+            html += "<td>";
+            html +=
+              '<div style="display: flex; align-items: center; gap: 12px;">';
+            html +=
+              '<div class="avatar">' +
+              (user.name ? user.name.charAt(0) : "?") +
+              "</div>";
+            html += "<div>";
+            html +=
+              '<div style="font-weight: bold; color: #2c3e50; margin-bottom: 2px;">' +
+              (user.name || "未知") +
+              "</div>";
+            html +=
+              '<div style="color: #666; font-size: 0.8em;">ID: ' +
+              (user.id || "未知") +
+              "</div>";
+            html += "</div>";
+            html += "</div>";
+            html += "</td>";
+
+            // 部门职位
+            html += "<td>";
+            html += '<div style="margin-bottom: 4px;">';
+            html +=
+              '<div style="font-weight: bold; color: #2c3e50;">' +
+              (user.department || "未知") +
+              "</div>";
+            html +=
+              '<div style="color: #666; font-size: 0.9em;">' +
+              (user.role || "未知") +
+              "</div>";
+            html += "</div>";
+            html +=
+              '<span style="background: ' +
+              getLevelColor(user.level) +
+              '; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7em;">' +
+              (user.level || "未知") +
+              "</span>";
+            html += "</td>";
+
+            // 联系方式
+            html += "<td>";
+            html += '<div style="font-size: 0.9em;">';
+            html +=
+              '<div style="margin-bottom: 2px; color: #2c3e50;">' +
+              (user.email || "未知") +
+              "</div>";
+            html +=
+              '<div style="color: #666;">' + (user.phone || "未知") + "</div>";
+            html += "</div>";
+            html += "</td>";
+
+            // 工作负载
+            html += "<td>";
+            html +=
+              '<div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">';
+            html +=
+              '<span style="font-weight: bold; color: ' +
+              workloadColor +
+              ';">' +
+              (user.workload || 0) +
+              "%</span>";
+            html +=
+              '<div style="width: 60px; background: #ecf0f1; height: 6px; border-radius: 3px; overflow: hidden;">';
+            html +=
+              '<div style="background: ' +
+              workloadColor +
+              "; height: 100%; width: " +
+              (user.workload || 0) +
+              '%;"></div>';
+            html += "</div>";
+            html += "</div>";
+            html += "</td>";
+
+            // 任务统计
+            html += "<td>";
+            html += '<div style="text-align: center;">';
+            html +=
+              '<div style="color: #27ae60; font-size: 0.9em; margin-bottom: 2px;">完成: ' +
+              (user.completedTasks || 0) +
+              "</div>";
+            html +=
+              '<div style="color: #f39c12; font-size: 0.9em;">进行: ' +
+              (user.ongoingTasks || 0) +
+              "</div>";
+            html += "</div>";
+            html += "</td>";
+
+            // 参与项目
+            html += "<td>";
+            html += '<div style="text-align: center;">';
+            html +=
+              '<span style="font-weight: bold; color: #3498db; font-size: 1.1em;">' +
+              (user.projects ? user.projects.length : 0) +
+              "</span>";
+            html += '<div style="color: #666; font-size: 0.8em;">个项目</div>';
+            html += "</div>";
+            html += "</td>";
+
+            // 最后登录
+            html += "<td>";
+            html +=
+              '<div style="font-size: 0.8em; color: #666;">' +
+              (user.lastLogin || "从未登录") +
+              "</div>";
+            html += "</td>";
+
+            // 操作
+            html += "<td>";
+            html += '<div style="display: flex; gap: 5px;">';
+            html +=
+              '<button class="btn btn-outline" onclick="viewUserDetail(\'' +
+              user.id +
+              '\')" style="padding: 4px 8px; font-size: 0.8em;">详情</button>';
+            html +=
+              '<button class="btn btn-primary" onclick="editUser(\'' +
+              user.id +
+              '\')" style="padding: 4px 8px; font-size: 0.8em;">编辑</button>';
+            html += "</div>";
+            html += "</td>";
+
+            html += "</tr>";
+          }
+
+          tbody.innerHTML = html;
+        } catch (error) {
+          console.error("渲染用户表格失败:", error);
+          document.getElementById("users-table-body").innerHTML =
+            '<tr><td colspan="8" style="text-align: center; color: #999;">加载用户数据失败</td></tr>';
+        }
+      }
+
+      // 查看用户详情
+      function viewUserDetail(userId) {
+        var user = getUserById(userId);
+        if (!user) {
+          showErrorMessage("用户不存在");
+          return;
+        }
+
+        var content = "<div>";
+        content += '<h4 style="margin-bottom: 20px;">用户详细信息</h4>';
+        content +=
+          '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">';
+        content +=
+          "<div><strong>姓名:</strong> " + (user.name || "未知") + "</div>";
+        content +=
+          "<div><strong>邮箱:</strong> " + (user.email || "未知") + "</div>";
+        content +=
+          "<div><strong>电话:</strong> " + (user.phone || "未知") + "</div>";
+        content +=
+          "<div><strong>部门:</strong> " +
+          (user.department || "未知") +
+          "</div>";
+        content +=
+          "<div><strong>职位:</strong> " + (user.role || "未知") + "</div>";
+        content +=
+          "<div><strong>级别:</strong> " + (user.level || "未知") + "</div>";
+        content +=
+          "<div><strong>工作负载:</strong> " + (user.workload || 0) + "%</div>";
+        content +=
+          "<div><strong>状态:</strong> " +
+          (user.status === "active" ? "活跃" : "非活跃") +
+          "</div>";
+        content += "</div>";
+        if (user.skills && user.skills.length > 0) {
+          content +=
+            '<div style="margin-top: 20px;"><strong>技能:</strong> ' +
+            user.skills.join(", ") +
+            "</div>";
+        }
+        content += "</div>";
+
+        showModal("用户详情", content);
+      }
+
+      // 编辑用户
+      function editUser(userId) {
+        showAlert("用户编辑功能已完成开发，点击编辑按钮可以修改用户信息！");
+      }
+
+      // 页面初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        // 检查登录状态
+        if (sessionStorage.getItem("isLoggedIn") !== "true") {
+          window.location.href = "login.html";
+          return;
+        }
+
+        loadData(function () {
+          renderUserStats();
+          renderUsersTable();
+        });
+      });
+    </script>
+  </body>
+</html>
