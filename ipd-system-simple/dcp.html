@@ -3,87 +3,80 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DCP评审 - IPD项目协作系统</title>
+    <title>DCP评审 - 源踔科技集成产品开发管理系统</title>
     <link rel="stylesheet" href="css/common.css" />
   </head>
   <body>
-    <!-- 顶部导航栏 -->
-    <nav class="top-nav">
-      <div class="nav-container">
-        <div class="nav-brand">IPD项目协作系统</div>
-        <div class="nav-menu">
-          <a href="index.html">项目概览</a>
-          <a href="dashboard.html">仪表板</a>
-          <a href="team.html">团队协作</a>
-          <a href="stages.html">阶段管理</a>
-          <a href="dcp.html">DCP评审</a>
-          <a href="deliverables.html">交付物管理</a>
-          <a href="users.html">用户管理</a>
-          <a href="settings.html">系统设置</a>
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="system-title">
+          <div class="company-name">源踔科技</div>
+          <div class="system-name">集成产品开发管理系统</div>
         </div>
+      </div>
+      <div class="nav-menu">
+        <a href="index.html">项目概览</a>
+        <a href="dashboard.html">数据分析</a>
+        <a href="team.html">团队协作</a>
+        <a href="stages.html">阶段管理</a>
+        <a href="dcp.html">DCP评审</a>
+        <a href="deliverables.html">交付物管理</a>
+        <a href="reports.html">报表中心</a>
+        <a href="users.html">用户管理</a>
+        <a href="help.html">帮助</a>
+        <a href="settings.html">系统设置</a>
+        <a href="#" onclick="logout()" class="logout">退出</a>
       </div>
     </nav>
 
     <!-- 主要内容区域 -->
     <main class="main-content">
-      <div class="container">
-        <!-- 页面标题 -->
-        <div style="margin-bottom: 30px">
-          <h1 style="color: #2c3e50; margin-bottom: 10px">DCP评审管理</h1>
-          <p style="color: #666">
-            决策检查点(Decision Check Point)评审流程管理
-          </p>
+      <!-- DCP评审统计 -->
+      <div class="grid grid-4" style="margin-bottom: 30px">
+        <div class="stat-card">
+          <div class="stat-number" id="total-reviews">0</div>
+          <div class="stat-label">总评审数</div>
         </div>
-
-        <!-- DCP评审统计 -->
-        <div class="grid grid-4" style="margin-bottom: 30px">
-          <div class="stat-card">
-            <div class="stat-number" id="total-reviews">0</div>
-            <div class="stat-label">总评审数</div>
+        <div class="stat-card">
+          <div
+            class="stat-number"
+            id="completed-reviews"
+            style="color: #27ae60"
+          >
+            0
           </div>
-          <div class="stat-card">
-            <div
-              class="stat-number"
-              id="completed-reviews"
-              style="color: #27ae60"
-            >
-              0
-            </div>
-            <div class="stat-label">已完成</div>
-          </div>
-          <div class="stat-card">
-            <div
-              class="stat-number"
-              id="pending-reviews"
-              style="color: #e74c3c"
-            >
-              0
-            </div>
-            <div class="stat-label">待处理</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="pass-rate" style="color: #3498db">
-              0%
-            </div>
-            <div class="stat-label">通过率</div>
-          </div>
+          <div class="stat-label">已完成</div>
         </div>
-
-        <!-- DCP评审列表 -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">评审记录</h2>
-            <button
-              class="btn btn-primary"
-              onclick="showAlert('创建评审功能开发中')"
-            >
-              创建评审
-            </button>
+        <div class="stat-card">
+          <div class="stat-number" id="pending-reviews" style="color: #e74c3c">
+            0
           </div>
-          <div class="card-content">
-            <div id="reviews-container">
-              <!-- 评审记录将通过JavaScript动态生成 -->
-            </div>
+          <div class="stat-label">待处理</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="pass-rate" style="color: #3498db">
+            0%
+          </div>
+          <div class="stat-label">通过率</div>
+        </div>
+      </div>
+
+      <!-- DCP评审列表 -->
+      <div class="card">
+        <div
+          style="display: flex; justify-content: flex-end; margin-bottom: 15px"
+        >
+          <button
+            class="btn btn-primary"
+            onclick="showAlert('创建评审功能开发中')"
+          >
+            创建评审
+          </button>
+        </div>
+        <div class="card-content">
+          <div id="reviews-container">
+            <!-- 评审记录将通过JavaScript动态生成 -->
           </div>
         </div>
       </div>
@@ -451,6 +444,12 @@
 
       // 页面初始化
       document.addEventListener("DOMContentLoaded", function () {
+        // 检查登录状态
+        if (sessionStorage.getItem("isLoggedIn") !== "true") {
+          window.location.href = "login.html";
+          return;
+        }
+
         loadData(function () {
           safeRender(renderDCPStats, "total-reviews");
           safeRender(renderDCPReviews, "reviews-container");

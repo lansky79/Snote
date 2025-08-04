@@ -78,5 +78,119 @@
     "priority": "medium",
     "riskLevel": "low",
     "comments": []
+  },
+  {
+    "id": "dcp_005",
+    "projectId": "proj_006",
+    "stage": "concept",
+    "title": "视觉算法训练平台概念阶段DCP评审",
+    "status": "in_review",
+    "result": null,
+    "reviewers": ["user_003", "user_007", "user_008", "user_011"],
+    "deadline": "2024-03-05",
+    "createdAt": "2024-02-18",
+    "completedAt": null,
+    "priority": "high",
+    "riskLevel": "high",
+    "comments": [
+      {
+        "reviewerId": "user_003",
+        "comment": "技术架构设计需要进一步优化，算法模型选择需要更多论证",
+        "decision": "reject",
+        "createdAt": "2024-02-20"
+      },
+      {
+        "reviewerId": "user_008",
+        "comment": "算法技术路线清晰，但需要考虑计算资源和成本控制",
+        "decision": "approve",
+        "createdAt": "2024-02-21"
+      }
+    ]
+  },
+  {
+    "id": "dcp_006",
+    "projectId": "proj_007",
+    "stage": "verify",
+    "title": "多源数据分析系统验证阶段DCP评审",
+    "status": "completed",
+    "result": "pass",
+    "reviewers": ["user_005", "user_008", "user_009"],
+    "deadline": "2024-02-10",
+    "createdAt": "2024-02-05",
+    "completedAt": "2024-02-09",
+    "priority": "high",
+    "riskLevel": "low",
+    "comments": [
+      {
+        "reviewerId": "user_009",
+        "comment": "数据处理性能达标，系统稳定性良好，建议通过",
+        "decision": "approve",
+        "createdAt": "2024-02-08"
+      },
+      {
+        "reviewerId": "user_008",
+        "comment": "算法准确性验证通过，可以进入发布阶段",
+        "decision": "approve",
+        "createdAt": "2024-02-09"
+      }
+    ]
+  },
+  {
+    "id": "dcp_007",
+    "projectId": "proj_007",
+    "stage": "release",
+    "title": "多源数据分析系统发布阶段DCP评审",
+    "status": "pending",
+    "result": null,
+    "reviewers": ["user_005", "user_009", "user_010"],
+    "deadline": "2024-02-28",
+    "createdAt": "2024-02-22",
+    "completedAt": null,
+    "priority": "high",
+    "riskLevel": "medium",
+    "comments": []
+  },
+  {
+    "id": "dcp_008",
+    "projectId": "proj_003",
+    "stage": "lifecycle",
+    "title": "森林防火管理系统生命周期阶段DCP评审",
+    "status": "completed",
+    "result": "conditional_pass",
+    "reviewers": ["user_002", "user_006"],
+    "deadline": "2024-01-15",
+    "createdAt": "2024-01-10",
+    "completedAt": "2024-01-14",
+    "priority": "medium",
+    "riskLevel": "low",
+    "comments": [
+      {
+        "reviewerId": "user_002",
+        "comment": "系统运行稳定，但需要加强用户培训和技术支持",
+        "decision": "approve",
+        "createdAt": "2024-01-12"
+      },
+      {
+        "reviewerId": "user_006",
+        "comment": "质量监控到位，建议增加定期维护计划",
+        "decision": "approve",
+        "createdAt": "2024-01-14"
+      }
+    ]
+  },
+  {
+    "id": "dcp_009",
+    "projectId": "proj_005",
+    "stage": "plan",
+    "title": "智慧公厕管理系统计划阶段DCP评审",
+    "status": "pending",
+    "result": null,
+    "reviewers": ["user_002", "user_004", "user_010"],
+    "deadline": "2024-02-25",
+    "createdAt": "2024-02-20",
+    "completedAt": null,
+    "priority": "low",
+    "riskLevel": "low",
+    "comments": []
   }
 ]

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登录 - 源踔科技集成产品开发管理系统</title>
+    <link rel="stylesheet" href="css/common.css" />
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+      }
+
+      .login-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 0;
+        width: 100%;
+        max-width: 400px;
+        overflow: hidden;
+      }
+
+      .login-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .login-title {
+        text-align: center;
+      }
+
+      .login-company-name,
+      .login-system-name {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin: 0;
+        line-height: 1.3;
+        color: white;
+      }
+
+      .login-company-name {
+        margin-bottom: 5px;
+      }
+
+      .login-form {
+        padding: 40px 30px;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #ecf0f1;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: #f8f9fa;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #3498db;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 20px;
+      }
+
+      .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+      }
+
+      .login-links {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+      }
+
+      .login-links a {
+        color: #3498db;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .login-links a:hover {
+        color: #2980b9;
+        text-decoration: underline;
+      }
+
+      .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 25px;
+      }
+
+      .remember-me input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+      }
+
+      .remember-me label {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #666;
+        cursor: pointer;
+      }
+
+      .login-footer {
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        color: #666;
+        font-size: 0.8rem;
+      }
+
+      @media (max-width: 480px) {
+        .login-container {
+          margin: 20px;
+          max-width: none;
+        }
+
+        .login-header {
+          padding: 30px 20px 20px;
+        }
+
+        .login-form {
+          padding: 30px 20px;
+        }
+
+        .system-title {
+          font-size: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <!-- 登录头部 -->
+      <div class="login-header">
+        <div class="login-title">
+          <div class="login-company-name">源踔科技</div>
+          <div class="login-system-name">集成产品开发管理系统</div>
+        </div>
+      </div>
+
+      <!-- 登录表单 -->
+      <div class="login-form">
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="username">用户名</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="请输入用户名"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">密码</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="请输入密码"
+              required
+            />
+          </div>
+
+          <div class="remember-me">
+            <input type="checkbox" id="remember" name="remember" />
+            <label for="remember">记住我</label>
+          </div>
+
+          <button type="submit" class="login-btn">登录系统</button>
+
+          <div class="login-links">
+            <a href="#" onclick="showRegister()">用户注册</a>
+            <a href="#" onclick="showForgotPassword()">找回密码</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 引入脚本 -->
+    <script src="js/common.js"></script>
+    <script>
+      // 处理登录
+      function handleLogin(event) {
+        event.preventDefault();
+
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        var remember = document.getElementById("remember").checked;
+
+        // 验证固定账户: admin/admin123
+        if (username === "admin" && password === "admin123") {
+          // 保存登录状态
+          sessionStorage.setItem("isLoggedIn", "true");
+          sessionStorage.setItem("currentUser", username);
+
+          if (remember) {
+            localStorage.setItem("rememberedUser", username);
+          }
+
+          // 显示登录成功消息
+          showSuccessMessage("登录成功，正在跳转...");
+
+          // 延迟跳转到主页
+          setTimeout(function () {
+            window.location.href = "index.html";
+          }, 1000);
+        } else {
+          showErrorMessage("用户名或密码错误");
+        }
+      }
+
+      // 显示注册界面
+      function showRegister() {
+        var content = "<div>";
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 20px;">用户注册</h4>';
+        content += '<form onsubmit="handleRegister(event)">';
+        content += '<div style="margin-bottom: 15px;">';
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666;">用户名</label>';
+        content +=
+          '<input type="text" id="regUsername" placeholder="请输入用户名" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += "</div>";
+        content += '<div style="margin-bottom: 15px;">';
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666;">邮箱</label>';
+        content +=
+          '<input type="email" id="regEmail" placeholder="请输入邮箱" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += "</div>";
+        content += '<div style="margin-bottom: 15px;">';
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666;">密码</label>';
+        content +=
+          '<input type="password" id="regPassword" placeholder="请输入密码" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += "</div>";
+        content += '<div style="margin-bottom: 15px;">';
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666;">确认密码</label>';
+        content +=
+          '<input type="password" id="regConfirmPassword" placeholder="请再次输入密码" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += "</div>";
+        content += '<div style="display: flex; gap: 10px; margin-top: 20px;">';
+        content +=
+          '<button type="submit" class="btn btn-primary" style="flex: 1;">注册</button>';
+        content +=
+          '<button type="button" class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">取消</button>';
+        content += "</div>";
+        content += "</form>";
+        content += "</div>";
+
+        showModal("用户注册", content);
+      }
+
+      // 处理注册
+      function handleRegister(event) {
+        event.preventDefault();
+
+        var username = document.getElementById("regUsername").value;
+        var email = document.getElementById("regEmail").value;
+        var password = document.getElementById("regPassword").value;
+        var confirmPassword =
+          document.getElementById("regConfirmPassword").value;
+
+        if (password !== confirmPassword) {
+          showErrorMessage("两次输入的密码不一致");
+          return;
+        }
+
+        // 模拟注册成功
+        showSuccessMessage("注册成功！请使用新账户登录");
+        closeModal();
+      }
+
+      // 显示找回密码界面
+      function showForgotPassword() {
+        var content = "<div>";
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 20px;">找回密码</h4>';
+        content +=
+          '<p style="color: #666; margin-bottom: 20px;">请输入您的邮箱地址，我们将发送重置密码的链接到您的邮箱。</p>';
+        content += '<form onsubmit="handleForgotPassword(event)">';
+        content += '<div style="margin-bottom: 20px;">';
+        content +=
+          '<label style="display: block; margin-bottom: 5px; color: #666;">邮箱地址</label>';
+        content +=
+          '<input type="email" id="forgotEmail" placeholder="请输入注册时使用的邮箱" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>';
+        content += "</div>";
+        content += '<div style="display: flex; gap: 10px; margin-top: 20px;">';
+        content +=
+          '<button type="submit" class="btn btn-primary" style="flex: 1;">发送重置链接</button>';
+        content +=
+          '<button type="button" class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">取消</button>';
+        content += "</div>";
+        content += "</form>";
+        content += "</div>";
+
+        showModal("找回密码", content);
+      }
+
+      // 处理找回密码
+      function handleForgotPassword(event) {
+        event.preventDefault();
+
+        var email = document.getElementById("forgotEmail").value;
+
+        // 模拟发送成功
+        showSuccessMessage("重置密码链接已发送到您的邮箱，请查收");
+        closeModal();
+      }
+
+      // 页面加载时检查是否有记住的用户
+      document.addEventListener("DOMContentLoaded", function () {
+        var rememberedUser = localStorage.getItem("rememberedUser");
+        if (rememberedUser) {
+          document.getElementById("username").value = rememberedUser;
+          document.getElementById("remember").checked = true;
+        }
+
+        // 如果已经登录，直接跳转
+        if (sessionStorage.getItem("isLoggedIn") === "true") {
+          window.location.href = "index.html";
+        }
+      });
+    </script>
+  </body>
+</html>

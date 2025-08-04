@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>报表中心 - 源踔科技集成产品开发管理系统</title>
+    <link rel="stylesheet" href="css/common.css" />
+  </head>
+  <body>
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="system-title">
+          <div class="company-name">源踔科技</div>
+          <div class="system-name">集成产品开发管理系统</div>
+        </div>
+      </div>
+      <div class="nav-menu">
+        <a href="index.html">项目概览</a>
+        <a href="dashboard.html">数据分析</a>
+        <a href="team.html">团队协作</a>
+        <a href="stages.html">阶段管理</a>
+        <a href="dcp.html">DCP评审</a>
+        <a href="deliverables.html">交付物管理</a>
+        <a href="reports.html">报表中心</a>
+        <a href="users.html">用户管理</a>
+        <a href="help.html">帮助</a>
+        <a href="settings.html">系统设置</a>
+        <a href="#" onclick="logout()" class="logout">退出</a>
+      </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+
+
+      <!-- 报表分类 -->
+      <div class="grid grid-4" style="margin-bottom: 30px">
+        <div class="stat-card" onclick="showReportCategory('project')">
+          <div style="font-size: 2em; margin-bottom: 10px">📊</div>
+          <div class="stat-label">项目报表</div>
+          <div style="color: #666; font-size: 0.8em; margin-top: 5px">
+            5个报表
+          </div>
+        </div>
+        <div class="stat-card" onclick="showReportCategory('team')">
+          <div style="font-size: 2em; margin-bottom: 10px">👥</div>
+          <div class="stat-label">团队报表</div>
+          <div style="color: #666; font-size: 0.8em; margin-top: 5px">
+            3个报表
+          </div>
+        </div>
+        <div class="stat-card" onclick="showReportCategory('financial')">
+          <div style="font-size: 2em; margin-bottom: 10px">💰</div>
+          <div class="stat-label">财务报表</div>
+          <div style="color: #666; font-size: 0.8em; margin-top: 5px">
+            4个报表
+          </div>
+        </div>
+        <div class="stat-card" onclick="showReportCategory('quality')">
+          <div style="font-size: 2em; margin-bottom: 10px">✅</div>
+          <div class="stat-label">质量报表</div>
+          <div style="color: #666; font-size: 0.8em; margin-top: 5px">
+            3个报表
+          </div>
+        </div>
+      </div>
+
+      <!-- 报表列表 -->
+      <div class="card">
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px;">
+            <select
+              id="reportFilter"
+              onchange="filterReports()"
+              style="padding: 8px; border: 1px solid #ddd; border-radius: 4px"
+            >
+              <option value="all">全部报表</option>
+              <option value="project">项目报表</option>
+              <option value="team">团队报表</option>
+              <option value="financial">财务报表</option>
+              <option value="quality">质量报表</option>
+            </select>
+            <button
+              class="btn btn-primary"
+              onclick="showAlert('自定义报表功能开发中')"
+            >
+              自定义报表
+            </button>
+          </div>
+        </div>
+        <div class="card-content">
+          <div id="reports-container" class="grid grid-3">
+            <!-- 报表卡片将通过JavaScript动态生成 -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 引入脚本 -->
+    <script src="js/data.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+      // 报表数据
+      var reportsData = [
+        // 项目报表
+        {
+          id: "rpt_001",
+          name: "项目进度汇总报表",
+          category: "project",
+          description: "展示所有项目的进度情况和阶段分布",
+          icon: "📈",
+          lastGenerated: "2024-02-20",
+          frequency: "每日更新",
+        },
+        {
+          id: "rpt_002",
+          name: "项目预算执行报表",
+          category: "project",
+          description: "分析项目预算使用情况和成本控制",
+          icon: "💹",
+          lastGenerated: "2024-02-19",
+          frequency: "每周更新",
+        },
+        {
+          id: "rpt_003",
+          name: "项目风险评估报表",
+          category: "project",
+          description: "识别和评估项目风险等级",
+          icon: "⚠️",
+          lastGenerated: "2024-02-18",
+          frequency: "每月更新",
+        },
+        {
+          id: "rpt_004",
+          name: "项目交付物统计报表",
+          category: "project",
+          description: "统计各项目交付物完成情况",
+          icon: "📋",
+          lastGenerated: "2024-02-20",
+          frequency: "每日更新",
+        },
+        {
+          id: "rpt_005",
+          name: "项目里程碑报表",
+          category: "project",
+          description: "跟踪项目关键里程碑达成情况",
+          icon: "🎯",
+          lastGenerated: "2024-02-17",
+          frequency: "每周更新",
+        },
+
+        // 团队报表
+        {
+          id: "rpt_006",
+          name: "团队工作负载报表",
+          category: "team",
+          description: "分析团队成员工作负载分布",
+          icon: "👤",
+          lastGenerated: "2024-02-20",
+          frequency: "每日更新",
+        },
+        {
+          id: "rpt_007",
+          name: "团队绩效评估报表",
+          category: "team",
+          description: "评估团队成员工作绩效",
+          icon: "🏆",
+          lastGenerated: "2024-02-15",
+          frequency: "每月更新",
+        },
+        {
+          id: "rpt_008",
+          name: "团队技能分析报表",
+          category: "team",
+          description: "分析团队技能结构和缺口",
+          icon: "🎓",
+          lastGenerated: "2024-02-10",
+          frequency: "每季度更新",
+        },
+
+        // 财务报表
+        {
+          id: "rpt_009",
+          name: "项目成本分析报表",
+          category: "financial",
+          description: "详细分析各项目成本构成",
+          icon: "💰",
+          lastGenerated: "2024-02-19",
+          frequency: "每周更新",
+        },
+        {
+          id: "rpt_010",
+          name: "预算执行情况报表",
+          category: "financial",
+          description: "监控预算执行和偏差分析",
+          icon: "📊",
+          lastGenerated: "2024-02-18",
+          frequency: "每月更新",
+        },
+        {
+          id: "rpt_011",
+          name: "ROI投资回报分析",
+          category: "financial",
+          description: "计算项目投资回报率",
+          icon: "📈",
+          lastGenerated: "2024-02-15",
+          frequency: "每季度更新",
+        },
+        {
+          id: "rpt_012",
+          name: "成本效益对比报表",
+          category: "financial",
+          description: "对比不同项目的成本效益",
+          icon: "⚖️",
+          lastGenerated: "2024-02-12",
+          frequency: "每月更新",
+        },
+
+        // 质量报表
+        {
+          id: "rpt_013",
+          name: "DCP评审通过率报表",
+          category: "quality",
+          description: "统计各阶段DCP评审通过情况",
+          icon: "✅",
+          lastGenerated: "2024-02-20",
+          frequency: "每周更新",
+        },
+        {
+          id: "rpt_014",
+          name: "质量问题跟踪报表",
+          category: "quality",
+          description: "跟踪项目质量问题和解决情况",
+          icon: "🔍",
+          lastGenerated: "2024-02-18",
+          frequency: "每日更新",
+        },
+        {
+          id: "rpt_015",
+          name: "交付物质量评估报表",
+          category: "quality",
+          description: "评估交付物质量水平",
+          icon: "📝",
+          lastGenerated: "2024-02-16",
+          frequency: "每周更新",
+        },
+      ];
+
+      // 渲染报表列表
+      function renderReports(filter = "all") {
+        var container = document.getElementById("reports-container");
+        var filteredReports =
+          filter === "all"
+            ? reportsData
+            : reportsData.filter(function (r) {
+                return r.category === filter;
+              });
+        var html = "";
+
+        for (var i = 0; i < filteredReports.length; i++) {
+          var report = filteredReports[i];
+
+          html +=
+            '<div class="card" style="margin: 0; cursor: pointer; transition: transform 0.2s;" onclick="generateReport(\'' +
+            report.id +
+            "')\">";
+          html += '<div style="text-align: center; margin-bottom: 15px;">';
+          html +=
+            '<div style="font-size: 3em; margin-bottom: 10px;">' +
+            report.icon +
+            "</div>";
+          html +=
+            '<h4 style="margin: 0; color: #2c3e50; font-size: 1.1em;">' +
+            report.name +
+            "</h4>";
+          html += "</div>";
+          html +=
+            '<p style="color: #666; margin-bottom: 15px; font-size: 0.9em; line-height: 1.4; text-align: center;">' +
+            report.description +
+            "</p>";
+          html +=
+            '<div style="border-top: 1px solid #e9ecef; padding-top: 15px; font-size: 0.8em; color: #999;">';
+          html +=
+            '<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">';
+          html += "<span>更新频率:</span>";
+          html += "<span>" + report.frequency + "</span>";
+          html += "</div>";
+          html +=
+            '<div style="display: flex; justify-content: space-between;">';
+          html += "<span>最后生成:</span>";
+          html += "<span>" + formatDate(report.lastGenerated) + "</span>";
+          html += "</div>";
+          html += "</div>";
+          html += '<div style="margin-top: 15px; display: flex; gap: 8px;">';
+          html +=
+            '<button class="btn btn-outline" onclick="event.stopPropagation(); previewReport(\'' +
+            report.id +
+            '\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">预览</button>';
+          html +=
+            '<button class="btn btn-primary" onclick="event.stopPropagation(); generateReport(\'' +
+            report.id +
+            '\')" style="flex: 1; padding: 6px 10px; font-size: 0.8em;">生成</button>';
+          html += "</div>";
+          html += "</div>";
+        }
+
+        container.innerHTML = html;
+      }
+
+      // 显示报表分类
+      function showReportCategory(category) {
+        document.getElementById("reportFilter").value = category;
+        filterReports();
+      }
+
+      // 过滤报表
+      function filterReports() {
+        var filter = document.getElementById("reportFilter").value;
+        renderReports(filter);
+      }
+
+      // 预览报表
+      function previewReport(reportId) {
+        var report = reportsData.find(function (r) {
+          return r.id === reportId;
+        });
+        if (!report) return;
+
+        var content = "<div>";
+        content +=
+          '<h4 style="color: #2c3e50; margin-bottom: 20px;">' +
+          report.name +
+          " - 预览</h4>";
+        content += '<div style="text-align: center; margin-bottom: 20px;">';
+        content +=
+          '<div style="font-size: 4em; margin-bottom: 10px;">' +
+          report.icon +
+          "</div>";
+        content +=
+          '<p style="color: #666; line-height: 1.6;">' +
+          report.description +
+          "</p>";
+        content += "</div>";
+
+        // 模拟报表数据预览
+        content +=
+          '<div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">';
+        content +=
+          '<h5 style="color: #2c3e50; margin-bottom: 15px;">报表数据预览</h5>';
+
+        if (report.category === "project") {
+          content +=
+            '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #3498db;">5</div><div style="font-size: 0.8em; color: #666;">总项目数</div></div>';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #27ae60;">3</div><div style="font-size: 0.8em; color: #666;">进行中</div></div>';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #f39c12;">67%</div><div style="font-size: 0.8em; color: #666;">平均进度</div></div>';
+          content += "</div>";
+        } else if (report.category === "team") {
+          content +=
+            '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #3498db;">6</div><div style="font-size: 0.8em; color: #666;">团队成员</div></div>';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #27ae60;">78%</div><div style="font-size: 0.8em; color: #666;">平均负载</div></div>';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #f39c12;">42</div><div style="font-size: 0.8em; color: #666;">总任务数</div></div>';
+          content += "</div>";
+        } else if (report.category === "financial") {
+          content +=
+            '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #3498db;">685万</div><div style="font-size: 0.8em; color: #666;">总预算</div></div>';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #27ae60;">412万</div><div style="font-size: 0.8em; color: #666;">已使用</div></div>';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #f39c12;">60%</div><div style="font-size: 0.8em; color: #666;">执行率</div></div>';
+          content += "</div>";
+        } else if (report.category === "quality") {
+          content +=
+            '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #3498db;">4</div><div style="font-size: 0.8em; color: #666;">总评审数</div></div>';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #27ae60;">100%</div><div style="font-size: 0.8em; color: #666;">通过率</div></div>';
+          content +=
+            '<div><div style="font-size: 1.5em; font-weight: bold; color: #f39c12;">5</div><div style="font-size: 0.8em; color: #666;">交付物数</div></div>';
+          content += "</div>";
+        }
+
+        content += "</div>";
+
+        content +=
+          '<div style="color: #999; font-size: 0.8em; text-align: center;">';
+        content += "* 这是报表数据预览，实际报表包含更详细的数据和图表";
+        content += "</div>";
+
+        content += "</div>";
+
+        showModal("报表预览", content);
+      }
+
+      // 生成报表
+      function generateReport(reportId) {
+        var report = reportsData.find(function (r) {
+          return r.id === reportId;
+        });
+        if (!report) return;
+
+        // 显示生成进度
+        showSuccessMessage("正在生成报表: " + report.name);
+
+        // 模拟报表生成过程
+        setTimeout(function () {
+          var content = "<div>";
+          content +=
+            '<h4 style="color: #2c3e50; margin-bottom: 20px;">' +
+            report.name +
+            "</h4>";
+          content += '<div style="text-align: center; margin-bottom: 25px;">';
+          content +=
+            '<div style="font-size: 4em; margin-bottom: 15px;">✅</div>';
+          content +=
+            '<div style="color: #27ae60; font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">报表生成成功！</div>';
+          content +=
+            '<div style="color: #666;">报表已生成完成，您可以选择以下操作：</div>';
+          content += "</div>";
+
+          content +=
+            '<div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">';
+          content +=
+            '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; font-size: 0.9em;">';
+          content +=
+            "<div><strong>报表名称:</strong> " + report.name + "</div>";
+          content +=
+            "<div><strong>生成时间:</strong> " +
+            new Date().toLocaleString("zh-CN") +
+            "</div>";
+          content += "<div><strong>文件格式:</strong> PDF / Excel</div>";
+          content += "<div><strong>文件大小:</strong> 约 2.5MB</div>";
+          content += "</div>";
+          content += "</div>";
+
+          content += '<div style="display: flex; gap: 10px;">';
+          content +=
+            '<button class="btn btn-primary" onclick="showAlert(\'下载功能开发中\')" style="flex: 1;">下载PDF</button>';
+          content +=
+            '<button class="btn btn-secondary" onclick="showAlert(\'下载功能开发中\')" style="flex: 1;">下载Excel</button>';
+          content +=
+            '<button class="btn btn-outline" onclick="showAlert(\'预览功能开发中\')" style="flex: 1;">在线预览</button>';
+          content += "</div>";
+
+          content += "</div>";
+
+          showModal("报表生成完成", content);
+        }, 2000);
+      }
+
+      // 页面初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        // 检查登录状态
+        if (sessionStorage.getItem("isLoggedIn") !== "true") {
+          window.location.href = "login.html";
+          return;
+        }
+
+        renderReports();
+      });
+    </script>
+  </body>
+</html>

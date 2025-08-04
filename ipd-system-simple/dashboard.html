@@ -3,117 +3,217 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>仪表板 - IPD项目协作系统</title>
+    <title>仪表板 - 源踔科技集成产品开发管理系统</title>
     <link rel="stylesheet" href="css/common.css" />
   </head>
   <body>
-    <!-- 顶部导航栏 -->
-    <nav class="top-nav">
-      <div class="nav-container">
-        <div class="nav-brand">IPD项目协作系统</div>
-        <div class="nav-menu">
-          <a href="index.html">项目概览</a>
-          <a href="dashboard.html">仪表板</a>
-          <a href="team.html">团队协作</a>
-          <a href="stages.html">阶段管理</a>
-          <a href="dcp.html">DCP评审</a>
-          <a href="deliverables.html">交付物管理</a>
-          <a href="users.html">用户管理</a>
-          <a href="settings.html">系统设置</a>
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="system-title">
+          <div class="company-name">源踔科技</div>
+          <div class="system-name">集成产品开发管理系统</div>
         </div>
+      </div>
+      <div class="nav-menu">
+        <a href="index.html">项目概览</a>
+        <a href="dashboard.html">数据分析</a>
+        <a href="team.html">团队协作</a>
+        <a href="stages.html">阶段管理</a>
+        <a href="dcp.html">DCP评审</a>
+        <a href="deliverables.html">交付物管理</a>
+        <a href="reports.html">报表中心</a>
+        <a href="users.html">用户管理</a>
+        <a href="help.html">帮助</a>
+        <a href="settings.html">系统设置</a>
+        <a href="#" onclick="logout()" class="logout">退出</a>
       </div>
     </nav>
 
     <!-- 主要内容区域 -->
     <main class="main-content">
-      <div class="container">
-        <!-- 页面标题 -->
-        <div style="margin-bottom: 30px">
-          <h1 style="color: #2c3e50; margin-bottom: 10px">数据仪表板</h1>
-          <p style="color: #666">项目进展和团队绩效的综合分析</p>
+      <!-- 综合数据分析面板 -->
+      <div class="card" style="height: calc(100vh - 80px); overflow: hidden">
+        <div
+          style="
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <button
+            class="btn btn-outline"
+            onclick="refreshData()"
+            style="padding: 6px 12px; font-size: 0.9em"
+          >
+            刷新数据
+          </button>
+          <select
+            id="timeRange"
+            onchange="filterByTime()"
+            style="
+              padding: 6px;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+              font-size: 0.9em;
+            "
+          >
+            <option value="all">全部时间</option>
+            <option value="month">近一月</option>
+            <option value="quarter">近一季度</option>
+            <option value="year">近一年</option>
+          </select>
         </div>
+        <div
+          class="card-content"
+          style="height: calc(100% - 60px); overflow-y: auto"
+        >
+          <!-- 顶部关键指标 -->
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(6, 1fr);
+              gap: 15px;
+              margin-bottom: 20px;
+            "
+          >
+            <div class="mini-stat">
+              <div class="mini-stat-number" id="total-projects">0</div>
+              <div class="mini-stat-label">总项目</div>
+            </div>
+            <div class="mini-stat">
+              <div
+                class="mini-stat-number"
+                id="active-projects"
+                style="color: #27ae60"
+              >
+                0
+              </div>
+              <div class="mini-stat-label">进行中</div>
+            </div>
+            <div class="mini-stat">
+              <div
+                class="mini-stat-number"
+                id="avg-progress"
+                style="color: #3498db"
+              >
+                0%
+              </div>
+              <div class="mini-stat-label">平均进度</div>
+            </div>
+            <div class="mini-stat">
+              <div
+                class="mini-stat-number"
+                id="total-budget"
+                style="color: #f39c12"
+              >
+                0万
+              </div>
+              <div class="mini-stat-label">总预算</div>
+            </div>
+            <div class="mini-stat">
+              <div
+                class="mini-stat-number"
+                id="team-count"
+                style="color: #9b59b6"
+              >
+                0人
+              </div>
+              <div class="mini-stat-label">团队规模</div>
+            </div>
+            <div class="mini-stat">
+              <div
+                class="mini-stat-number"
+                id="dcp-pass-rate"
+                style="color: #e74c3c"
+              >
+                0%
+              </div>
+              <div class="mini-stat-label">DCP通过率</div>
+            </div>
+          </div>
 
-        <!-- 核心指标 -->
-        <div class="grid grid-4" style="margin-bottom: 30px">
-          <div class="stat-card">
-            <div class="stat-number" id="total-projects">0</div>
-            <div class="stat-label">总项目数</div>
-          </div>
-          <div class="stat-card">
-            <div
-              class="stat-number"
-              id="active-projects"
-              style="color: #2ecc71"
-            >
-              0
-            </div>
-            <div class="stat-label">进行中项目</div>
-          </div>
-          <div class="stat-card">
-            <div
-              class="stat-number"
-              id="completed-projects"
-              style="color: #27ae60"
-            >
-              0
-            </div>
-            <div class="stat-label">已完成项目</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="avg-progress" style="color: #3498db">
-              0%
-            </div>
-            <div class="stat-label">平均进度</div>
-          </div>
-        </div>
-
-        <!-- 项目进度概览 -->
-        <div class="card" style="margin-bottom: 30px">
-          <div class="card-header">
-            <h2 class="card-title">项目进度概览</h2>
-          </div>
-          <div class="card-content">
-            <div id="projects-progress-container">
-              <!-- 项目进度将通过JavaScript动态生成 -->
-            </div>
-          </div>
-        </div>
-
-        <!-- 双栏布局 -->
-        <div class="grid grid-2" style="gap: 30px">
-          <!-- 阶段分布 -->
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title">阶段分布</h2>
-            </div>
-            <div class="card-content">
-              <div id="stages-distribution">
-                <!-- 阶段分布将通过JavaScript动态生成 -->
+          <!-- 主要图表区域 -->
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              grid-template-rows: repeat(2, 1fr);
+              gap: 15px;
+              height: calc(100% - 100px);
+            "
+          >
+            <!-- 项目状态分布 -->
+            <div class="chart-container" style="height: 100%">
+              <div class="chart-title">项目状态分布</div>
+              <div
+                id="project-status-chart"
+                class="chart-content"
+                style="height: calc(100% - 30px); overflow-y: auto"
+              >
+                <!-- 项目状态进度条 -->
               </div>
             </div>
-          </div>
 
-          <!-- 团队工作负载 -->
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title">团队工作负载</h2>
-            </div>
-            <div class="card-content">
-              <div id="team-workload">
-                <!-- 团队工作负载将通过JavaScript动态生成 -->
+            <!-- 阶段分布 -->
+            <div class="chart-container" style="height: 100%">
+              <div class="chart-title">IPD阶段分布</div>
+              <div
+                id="stage-distribution-chart"
+                class="chart-content"
+                style="height: calc(100% - 30px); overflow-y: auto"
+              >
+                <!-- 阶段分布进度条 -->
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 项目预算分析 -->
-        <div class="card" style="margin-top: 30px">
-          <div class="card-header">
-            <h2 class="card-title">项目预算分析</h2>
-          </div>
-          <div class="card-content">
-            <div id="budget-analysis">
-              <!-- 预算分析将通过JavaScript动态生成 -->
+            <!-- 项目进度一览 -->
+            <div class="chart-container" style="height: 100%">
+              <div class="chart-title">项目进度一览</div>
+              <div
+                id="project-progress-chart"
+                class="chart-content"
+                style="height: calc(100% - 30px); overflow-y: auto"
+              >
+                <!-- 项目进度进度条 -->
+              </div>
+            </div>
+
+            <!-- 团队工作负载 -->
+            <div class="chart-container" style="height: 100%">
+              <div class="chart-title">团队负载</div>
+              <div
+                id="team-workload-chart"
+                class="chart-content"
+                style="height: calc(100% - 30px); overflow-y: auto"
+              >
+                <!-- 团队工作负载进度条 -->
+              </div>
+            </div>
+
+            <!-- 项目预算情况 -->
+            <div class="chart-container" style="height: 100%">
+              <div class="chart-title">项目预算情况</div>
+              <div
+                id="project-budget-chart"
+                class="chart-content"
+                style="height: calc(100% - 30px); overflow-y: auto"
+              >
+                <!-- 项目预算进度条 -->
+              </div>
+            </div>
+
+            <!-- 项目DCP情况 -->
+            <div class="chart-container" style="height: 100%">
+              <div class="chart-title">项目DCP情况</div>
+              <div
+                id="project-dcp-chart"
+                class="chart-content"
+                style="height: calc(100% - 30px); overflow-y: auto"
+              >
+                <!-- 项目DCP进度条 -->
+              </div>
             </div>
           </div>
         </div>
@@ -124,15 +224,15 @@
     <script src="js/data.js"></script>
     <script src="js/common.js"></script>
     <script>
-      // 渲染核心指标
-      function renderCoreMetrics() {
+      // 渲染关键指标
+      function renderKeyMetrics() {
         var projects = IPD_DATA.projects;
+        var users = IPD_DATA.users;
+        var dcpReviews = IPD_DATA.dcpReviews;
+
         var totalProjects = projects.length;
         var activeProjects = projects.filter(function (p) {
           return p.status === "in_progress";
-        }).length;
-        var completedProjects = projects.filter(function (p) {
-          return p.status === "completed";
         }).length;
         var avgProgress =
           totalProjects > 0
@@ -142,52 +242,89 @@
                 }, 0) / totalProjects
               )
             : 0;
+        var totalBudget = Math.round(
+          projects.reduce(function (sum, p) {
+            return sum + (p.budget || 0);
+          }, 0) / 10000
+        );
+        var teamCount = users.length;
+        var completedReviews = dcpReviews.filter(function (r) {
+          return r.status === "completed";
+        }).length;
+        var passedReviews = dcpReviews.filter(function (r) {
+          return r.result === "pass";
+        }).length;
+        var dcpPassRate =
+          completedReviews > 0
+            ? Math.round((passedReviews / completedReviews) * 100)
+            : 0;
 
         document.getElementById("total-projects").textContent = totalProjects;
         document.getElementById("active-projects").textContent = activeProjects;
-        document.getElementById("completed-projects").textContent =
-          completedProjects;
         document.getElementById("avg-progress").textContent = avgProgress + "%";
+        document.getElementById("total-budget").textContent =
+          totalBudget + "万";
+        document.getElementById("team-count").textContent = teamCount + "人";
+        document.getElementById("dcp-pass-rate").textContent =
+          dcpPassRate + "%";
       }
 
-      // 渲染项目进度概览
-      function renderProjectsProgress() {
-        var container = document.getElementById("projects-progress-container");
+      // 渲染项目状态分布
+      function renderProjectStatusChart() {
+        var container = document.getElementById("project-status-chart");
         var projects = IPD_DATA.projects;
-        var html = "";
 
-        for (var i = 0; i < projects.length; i++) {
-          var project = projects[i];
-          html +=
-            '<div style="display: flex; align-items: center; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
-          html += '<div style="flex: 1; margin-right: 20px;">';
-          html +=
-            '<div style="font-weight: bold; margin-bottom: 5px; color: #2c3e50;">' +
-            project.name +
-            "</div>";
-          html +=
-            '<div style="color: #666; font-size: 0.9em;">' +
-            getStageText(project.currentStage) +
-            " - " +
-            getStatusText(project.status) +
-            "</div>";
-          html += "</div>";
-          html += '<div style="width: 200px; margin-right: 15px;">';
-          html += createProgressBar(project.progress);
-          html += "</div>";
-          html +=
-            '<div style="min-width: 60px; text-align: center; font-weight: bold; color: #3498db;">' +
-            project.progress +
-            "%</div>";
-          html += "</div>";
+        var statusCount = {
+          planning: 0,
+          in_progress: 0,
+          completed: 0,
+        };
+
+        projects.forEach(function (p) {
+          statusCount[p.status] = (statusCount[p.status] || 0) + 1;
+        });
+
+        var colors = {
+          planning: "#f39c12",
+          in_progress: "#3498db",
+          completed: "#27ae60",
+        };
+
+        var labels = {
+          planning: "规划中",
+          in_progress: "进行中",
+          completed: "已完成",
+        };
+
+        var total = projects.length;
+        var html = '<div class="progress-list">';
+
+        for (var status in statusCount) {
+          if (statusCount[status] > 0) {
+            var percentage = Math.round((statusCount[status] / total) * 100);
+            html += '<div class="progress-item">';
+            html += '<div class="progress-name">' + labels[status] + "</div>";
+            html += '<div class="progress-bar-mini">';
+            html +=
+              '<div class="progress-fill-mini" style="width: ' +
+              percentage +
+              "%; background: " +
+              colors[status] +
+              ';"></div>';
+            html += "</div>";
+            html +=
+              '<div class="progress-value">' + statusCount[status] + "个</div>";
+            html += "</div>";
+          }
         }
 
+        html += "</div>";
         container.innerHTML = html;
       }
 
       // 渲染阶段分布
-      function renderStagesDistribution() {
-        var container = document.getElementById("stages-distribution");
+      function renderStageDistributionChart() {
+        var container = document.getElementById("stage-distribution-chart");
         var projects = IPD_DATA.projects;
         var stages = [
           "concept",
@@ -197,187 +334,262 @@
           "release",
           "lifecycle",
         ];
-        var html = "";
 
-        for (var i = 0; i < stages.length; i++) {
-          var stage = stages[i];
+        var maxCount = 0;
+        var stageCounts = {};
+
+        stages.forEach(function (stage) {
           var count = projects.filter(function (p) {
             return p.currentStage === stage;
           }).length;
+          stageCounts[stage] = count;
+          maxCount = Math.max(maxCount, count);
+        });
+
+        var html = '<div class="progress-list">';
+
+        stages.forEach(function (stage) {
+          var count = stageCounts[stage];
           var percentage =
-            projects.length > 0
-              ? Math.round((count / projects.length) * 100)
-              : 0;
+            maxCount > 0 ? Math.round((count / maxCount) * 100) : 0;
 
+          html += '<div class="progress-item">';
           html +=
-            '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">';
+            '<div class="progress-name">' +
+            getStageText(stage).replace("阶段", "") +
+            "</div>";
+          html += '<div class="progress-bar-mini">';
           html +=
-            '<span style="color: #666; min-width: 100px;">' +
-            getStageText(stage) +
-            "</span>";
-          html +=
-            '<div style="display: flex; align-items: center; gap: 10px; flex: 1;">';
-          html +=
-            '<div style="flex: 1; background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
-          html +=
-            '<div style="background: #3498db; height: 100%; width: ' +
+            '<div class="progress-fill-mini" style="width: ' +
             percentage +
-            '%;"></div>';
+            '%; background: #3498db;"></div>';
           html += "</div>";
-          html +=
-            '<span style="font-weight: bold; color: #2c3e50; min-width: 30px;">' +
-            count +
-            "</span>";
+          html += '<div class="progress-value">' + count + "个</div>";
           html += "</div>";
-          html += "</div>";
-        }
+        });
 
+        html += "</div>";
         container.innerHTML = html;
       }
 
-      // 渲染团队工作负载
-      function renderTeamWorkload() {
-        var container = document.getElementById("team-workload");
-        var users = IPD_DATA.users;
-        var html = "";
-
-        for (var i = 0; i < users.length; i++) {
-          var user = users[i];
-          var workloadColor = user.workload > 80 ? "#e74c3c" : "#27ae60";
-
-          html +=
-            '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">';
-          html +=
-            '<div style="display: flex; align-items: center; gap: 10px;">';
-          html += createAvatar(user.name);
-          html +=
-            '<span style="color: #666; font-size: 0.9em;">' +
-            user.name +
-            "</span>";
-          html += "</div>";
-          html +=
-            '<div style="display: flex; align-items: center; gap: 10px; flex: 1; margin-left: 15px;">';
-          html +=
-            '<div style="flex: 1; background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
-          html +=
-            '<div style="background: ' +
-            workloadColor +
-            "; height: 100%; width: " +
-            user.workload +
-            '%;"></div>';
-          html += "</div>";
-          html +=
-            '<span style="font-weight: bold; color: ' +
-            workloadColor +
-            '; min-width: 40px;">' +
-            user.workload +
-            "%</span>";
-          html += "</div>";
-          html += "</div>";
-        }
-
-        container.innerHTML = html;
-      }
-
-      // 渲染预算分析
-      function renderBudgetAnalysis() {
-        var container = document.getElementById("budget-analysis");
+      // 渲染项目进度图表
+      function renderProjectProgressChart() {
+        var container = document.getElementById("project-progress-chart");
         var projects = IPD_DATA.projects;
-        var html = "";
 
-        var totalBudget = projects.reduce(function (sum, p) {
-          return sum + (p.budget || 0);
-        }, 0);
-        var completedBudget = projects
-          .filter(function (p) {
-            return p.status === "completed";
+        var html = '<div class="progress-list">';
+
+        projects.forEach(function (project) {
+          var statusColor =
+            project.status === "completed"
+              ? "#27ae60"
+              : project.status === "in_progress"
+              ? "#3498db"
+              : "#f39c12";
+
+          html += '<div class="progress-item">';
+          html +=
+            '<div class="progress-name" title="' +
+            project.name +
+            '">' +
+            (project.name.length > 8
+              ? project.name.substring(0, 8) + "..."
+              : project.name) +
+            "</div>";
+          html += '<div class="progress-bar-mini">';
+          html +=
+            '<div class="progress-fill-mini" style="width: ' +
+            project.progress +
+            "%; background: " +
+            statusColor +
+            ';"></div>';
+          html += "</div>";
+          html += '<div class="progress-value">' + project.progress + "%</div>";
+          html += "</div>";
+        });
+
+        html += "</div>";
+        container.innerHTML = html;
+      }
+
+      // 渲染团队工作负载图表
+      function renderTeamWorkloadChart() {
+        var container = document.getElementById("team-workload-chart");
+        var users = IPD_DATA.users
+          .filter(function (u) {
+            return u.department === "研发部";
           })
-          .reduce(function (sum, p) {
-            return sum + (p.budget || 0);
-          }, 0);
-        var inProgressBudget = projects
-          .filter(function (p) {
-            return p.status === "in_progress";
-          })
-          .reduce(function (sum, p) {
-            return sum + (p.budget || 0);
-          }, 0);
+          .slice(0, 6);
 
-        html += '<div class="grid grid-3" style="margin-bottom: 20px;">';
-        html +=
-          '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 6px;">';
-        html +=
-          '<div style="font-size: 1.5em; font-weight: bold; color: #3498db; margin-bottom: 5px;">¥' +
-          (totalBudget / 10000).toFixed(1) +
-          "万</div>";
-        html += '<div style="color: #666; font-size: 0.9em;">总预算</div>';
-        html += "</div>";
-        html +=
-          '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 6px;">';
-        html +=
-          '<div style="font-size: 1.5em; font-weight: bold; color: #27ae60; margin-bottom: 5px;">¥' +
-          (completedBudget / 10000).toFixed(1) +
-          "万</div>";
-        html += '<div style="color: #666; font-size: 0.9em;">已完成项目</div>';
-        html += "</div>";
-        html +=
-          '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 6px;">';
-        html +=
-          '<div style="font-size: 1.5em; font-weight: bold; color: #f39c12; margin-bottom: 5px;">¥' +
-          (inProgressBudget / 10000).toFixed(1) +
-          "万</div>";
-        html += '<div style="color: #666; font-size: 0.9em;">进行中项目</div>';
-        html += "</div>";
-        html += "</div>";
+        var html = '<div class="progress-list">';
 
-        html +=
-          '<h4 style="color: #2c3e50; margin-bottom: 15px;">项目预算分布</h4>';
-        for (var i = 0; i < projects.length; i++) {
-          var project = projects[i];
-          var budgetPercentage =
-            totalBudget > 0
-              ? Math.round((project.budget / totalBudget) * 100)
+        users.forEach(function (user) {
+          var workloadColor =
+            user.workload > 80
+              ? "#e74c3c"
+              : user.workload > 60
+              ? "#f39c12"
+              : "#27ae60";
+
+          html += '<div class="progress-item">';
+          html += '<div class="progress-name">' + user.name + "</div>";
+          html += '<div class="progress-bar-mini">';
+          html +=
+            '<div class="progress-fill-mini" style="width: ' +
+            user.workload +
+            "%; background: " +
+            workloadColor +
+            ';"></div>';
+          html += "</div>";
+          html += '<div class="progress-value">' + user.workload + "%</div>";
+          html += "</div>";
+        });
+
+        html += "</div>";
+        container.innerHTML = html;
+      }
+
+      // 渲染项目预算情况图表
+      function renderProjectBudgetChart() {
+        var container = document.getElementById("project-budget-chart");
+        var projects = IPD_DATA.projects;
+
+        var html = '<div class="progress-list">';
+
+        projects.forEach(function (project) {
+          var budget = project.budget || 0;
+          var budgetInWan = Math.round(budget / 10000);
+          var maxBudget = Math.max.apply(
+            Math,
+            projects.map(function (p) {
+              return p.budget || 0;
+            })
+          );
+          var percentage =
+            maxBudget > 0 ? Math.round((budget / maxBudget) * 100) : 0;
+
+          var budgetColor =
+            budget > 500000
+              ? "#e74c3c"
+              : budget > 200000
+              ? "#f39c12"
+              : "#27ae60";
+
+          html += '<div class="progress-item">';
+          html +=
+            '<div class="progress-name" title="' +
+            project.name +
+            '">' +
+            (project.name.length > 8
+              ? project.name.substring(0, 8) + "..."
+              : project.name) +
+            "</div>";
+          html += '<div class="progress-bar-mini">';
+          html +=
+            '<div class="progress-fill-mini" style="width: ' +
+            percentage +
+            "%; background: " +
+            budgetColor +
+            ';"></div>';
+          html += "</div>";
+          html += '<div class="progress-value">' + budgetInWan + "万</div>";
+          html += "</div>";
+        });
+
+        html += "</div>";
+        container.innerHTML = html;
+      }
+
+      // 渲染项目DCP情况图表
+      function renderProjectDcpChart() {
+        var container = document.getElementById("project-dcp-chart");
+        var projects = IPD_DATA.projects;
+        var dcpReviews = IPD_DATA.dcpReviews;
+
+        var html = '<div class="progress-list">';
+
+        projects.forEach(function (project) {
+          var projectReviews = dcpReviews.filter(function (r) {
+            return r.projectId === project.id;
+          });
+          var completedReviews = projectReviews.filter(function (r) {
+            return r.status === "completed";
+          });
+          var passedReviews = completedReviews.filter(function (r) {
+            return r.result === "pass";
+          });
+
+          var passRate =
+            completedReviews.length > 0
+              ? Math.round(
+                  (passedReviews.length / completedReviews.length) * 100
+                )
               : 0;
 
-          html +=
-            '<div style="display: flex; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px;">';
-          html += '<div style="flex: 1; margin-right: 15px;">';
-          html +=
-            '<div style="font-weight: bold; color: #2c3e50; margin-bottom: 2px;">' +
-            project.name +
-            "</div>";
-          html +=
-            '<div style="color: #666; font-size: 0.8em;">' +
-            getStatusText(project.status) +
-            "</div>";
-          html += "</div>";
-          html += '<div style="width: 150px; margin-right: 15px;">';
-          html +=
-            '<div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">';
-          html +=
-            '<div style="background: #3498db; height: 100%; width: ' +
-            budgetPercentage +
-            '%;"></div>';
-          html += "</div>";
-          html += "</div>";
-          html +=
-            '<div style="min-width: 80px; text-align: right; font-weight: bold; color: #2c3e50;">¥' +
-            (project.budget / 10000).toFixed(1) +
-            "万</div>";
-          html += "</div>";
-        }
+          var dcpColor =
+            passRate >= 80 ? "#27ae60" : passRate >= 60 ? "#f39c12" : "#e74c3c";
 
+          html += '<div class="progress-item">';
+          html +=
+            '<div class="progress-name" title="' +
+            project.name +
+            '">' +
+            (project.name.length > 8
+              ? project.name.substring(0, 8) + "..."
+              : project.name) +
+            "</div>";
+          html += '<div class="progress-bar-mini">';
+          html +=
+            '<div class="progress-fill-mini" style="width: ' +
+            passRate +
+            "%; background: " +
+            dcpColor +
+            ';"></div>';
+          html += "</div>";
+          html += '<div class="progress-value">' + passRate + "%</div>";
+          html += "</div>";
+        });
+
+        html += "</div>";
         container.innerHTML = html;
+      }
+
+      // 刷新数据
+      function refreshData() {
+        loadData(function () {
+          renderAllCharts();
+          showSuccessMessage("数据已刷新");
+        });
+      }
+
+      // 时间范围过滤
+      function filterByTime() {
+        var timeRange = document.getElementById("timeRange").value;
+        // 这里可以根据时间范围过滤数据
+        showAlert("时间过滤功能开发中");
+      }
+
+      // 渲染所有图表
+      function renderAllCharts() {
+        safeRender(renderKeyMetrics, "total-projects");
+        safeRender(renderProjectStatusChart, "project-status-chart");
+        safeRender(renderStageDistributionChart, "stage-distribution-chart");
+        safeRender(renderProjectProgressChart, "project-progress-chart");
+        safeRender(renderTeamWorkloadChart, "team-workload-chart");
+        safeRender(renderProjectBudgetChart, "project-budget-chart");
+        safeRender(renderProjectDcpChart, "project-dcp-chart");
       }
 
       // 页面初始化
       document.addEventListener("DOMContentLoaded", function () {
+        // 检查登录状态
+        if (sessionStorage.getItem("isLoggedIn") !== "true") {
+          window.location.href = "login.html";
+          return;
+        }
+
         loadData(function () {
-          safeRender(renderCoreMetrics, "total-projects");
-          safeRender(renderProjectsProgress, "projects-progress-container");
-          safeRender(renderStagesDistribution, "stages-distribution");
-          safeRender(renderTeamWorkload, "team-workload");
-          safeRender(renderBudgetAnalysis, "budget-analysis");
+          renderAllCharts();
         });
       });
     </script>

@@ -230,3 +230,21 @@ function throttle(func, limit) {
     }
   };
 }
+
+// 退出登录功能
+function logout() {
+  showConfirm("确定要退出系统吗？", function () {
+    sessionStorage.removeItem("isLoggedIn");
+    sessionStorage.removeItem("currentUser");
+    window.location.href = "login.html";
+  });
+}
+
+// 检查登录状态
+function checkLoginStatus() {
+  if (sessionStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "login.html";
+    return false;
+  }
+  return true;
+}
